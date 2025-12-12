@@ -3,421 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Maha-Kailash Super App</title>
-    <meta name="theme-color" content="#080808">
+    <title>KailashOS</title>
+    <meta name="theme-color" content="#000000">
     <style>
-        /* --- 1. ENTERPRISE GRADE DESIGN SYSTEM --- */
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Manrope:wght@300;500;700&display=swap');
 
         :root {
-            --bg-deep: #050505;
-            --surface: #121212;
-            --surface-glass: rgba(20, 20, 20, 0.85);
-            --border: 1px solid rgba(255, 255, 255, 0.1);
-            
-            /* Spiritual Palette */
-            --gold: #FFD700;
-            --gold-glow: rgba(255, 215, 0, 0.3);
-            --rudra-red: #D32F2F;
-            --shiva-blue: #5C6BC0;
-            --ganesh-orange: #FF9800;
-            --parvati-pink: #E91E63;
-            
-            --nav-height: 85px; /* Taller for mobile touch targets */
+            --bg: #000000;
+            --surface: #0f0f0f;
+            --gold: #D4AF37;
+            --gold-dim: #8a7326;
+            --rudra: #800000;
+            --accent: #3b82f6;
+            --font-display: 'Cinzel', serif;
+            --font-ui: 'Manrope', sans-serif;
+            --ease: cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-
-        body {
-            margin: 0; background: var(--bg-deep); color: #fff;
-            font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden;
-            display: flex; flex-direction: column;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        /* TYPOGRAPHY */
-        .h1 { font-family: 'Cinzel', serif; font-weight: 700; color: var(--gold); margin: 0; }
-        .h2 { font-family: 'Cinzel', serif; font-size: 1.2rem; color: #fff; margin-bottom: 10px; }
-        .sub { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* --- 2. PERSISTENT AUDIO DOCK --- */
-        #audio-dock {
-            position: absolute; top: 0; left: 0; width: 100%; height: 60px;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 100;
-            display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
-            border-bottom: var(--border); padding-top: env(safe-area-inset-top);
-        }
-        .dock-controls { display: flex; gap: 10px; }
-        .snd-btn { 
-            width: 36px; height: 36px; border-radius: 50%; background: #222; border: var(--border);
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s;
-        }
-        .snd-btn.active { background: var(--gold); color: #000; box-shadow: 0 0 10px var(--gold-glow); }
-
-        /* --- 3. VIEWPORT MANAGER --- */
-        #viewport { flex: 1; position: relative; overflow: hidden; margin-top: 60px; }
         
+        body {
+            margin: 0; background: var(--bg); color: #fff;
+            font-family: var(--font-ui); height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        /* --- 1. THE HIDDEN ENTRY (SCROLL LOCK) --- */
+        #intro-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;
+            background: radial-gradient(circle at center, #1a1a1a, #000);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow-y: scroll; /* Allow scroll event */
+            scroll-behavior: smooth;
+        }
+        
+        .intro-content {
+            height: 150vh; /* Taller than screen to force scroll */
+            width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding-top: 40vh;
+        }
+
+        .trishul-glyph {
+            font-size: 6rem; color: var(--gold); filter: drop-shadow(0 0 40px var(--gold));
+            opacity: 1; transition: opacity 0.5s;
+        }
+        
+        .scroll-hint {
+            margin-top: 20px; font-family: var(--font-display); letter-spacing: 4px; font-size: 0.8rem;
+            color: #666; animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(10px);} }
+
+        /* --- 2. MAIN OS UI --- */
+        #os-layer {
+            opacity: 0; pointer-events: none; transition: opacity 1s var(--ease);
+            height: 100%; display: flex; flex-direction: column;
+        }
+        #os-layer.active { opacity: 1; pointer-events: all; }
+
+        /* VIEWS */
+        .viewport { flex: 1; position: relative; overflow: hidden; }
         .view {
             position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden;
-            padding: 20px; padding-bottom: 140px; /* Space for nav + safe area */
-            display: none; opacity: 0; transform: scale(0.98); transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            background: #000; display: none; opacity: 0; transform: scale(0.95);
+            transition: 0.5s var(--ease); padding-bottom: 100px;
         }
         .view.active { display: block; opacity: 1; transform: scale(1); }
 
-        /* --- VIEW 1: SANCTUM (Legacy Abhishekam) --- */
-        #view-sanctum { background: radial-gradient(circle at center, #1e1e2f, #000); }
-        .altar-stage { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* --- VIEW: JAPA ENGINE (The Bead Logic) --- */
+        #view-japa { background: radial-gradient(circle at 50% 30%, #1a0b0b, #000); }
         
-        /* Interactive Elements */
-        .kalash { width: 90px; height: 70px; background: linear-gradient(135deg, #b87333, #f0e68c); border-radius: 10px 10px 50px 50px; cursor: pointer; position: relative; z-index: 20; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .stream { position: absolute; top: 130px; left: 50%; transform: translateX(-50%); width: 6px; height: 0; background: linear-gradient(to bottom, #fff, #a2d9ff); transition: 0.2s; z-index: 15; border-radius: 4px; opacity: 0.8; }
-        .stream.on { height: 200px; }
-        .lingam { width: 130px; height: 190px; margin-top: 80px; background: radial-gradient(circle at 30% 30%, #444, #000 90%); border-radius: 65px 65px 30px 30px; position: relative; z-index: 10; box-shadow: inset 5px 5px 20px rgba(255,255,255,0.1); }
-        .tripundra { position: absolute; top: 60px; width: 100%; text-align: center; opacity: 0.9; }
-        .line { width: 80px; height: 4px; background: #ddd; margin: 5px auto; border-radius: 50%; box-shadow: 0 0 5px #fff; }
-        .dot { width: 10px; height: 10px; background: #d32f2f; border-radius: 50%; margin: 6px auto; box-shadow: 0 0 10px red; }
-        .diya { position: absolute; bottom: 80px; cursor: pointer; z-index: 25; filter: drop-shadow(0 0 10px #000); }
-        .flame { position: absolute; top: -20px; left: 50%; transform: translateX(-50%) scale(0); width: 14px; height: 30px; background: radial-gradient(gold, orangered); border-radius: 50% 50% 20px 20px; transition: 0.3s; filter: blur(2px); }
-        .flame.lit { transform: translateX(-50%) scale(1); animation: flicker 0.1s infinite alternate; }
-        @keyframes flicker { 0% { opacity: 0.8; transform: translateX(-50%) scale(1); } 100% { opacity: 1; transform: translateX(-50%) scale(1.1); } }
-
-        /* --- VIEW 2: MANTRA CORNER (FAMILY) --- */
-        #view-mantra { background: #080808; }
-        .idol-carousel { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; scrollbar-width: none; }
-        .idol-card {
-            min-width: 100px; height: 120px; background: #1a1a1a; border-radius: 12px; border: 1px solid #333;
+        .idol-selector {
+            display: flex; gap: 20px; padding: 20px; overflow-x: auto;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .idol-chip {
+            min-width: 80px; height: 100px; background: rgba(255,255,255,0.05); border-radius: 12px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.3s;
+            border: 1px solid transparent; transition: 0.3s;
         }
-        .idol-card.active { border-color: var(--gold); background: #222; transform: scale(1.05); }
-        .idol-icon { font-size: 2.5rem; margin-bottom: 10px; }
-        .idol-name { font-size: 0.75rem; text-transform: uppercase; color: #aaa; }
+        .idol-chip.active { background: rgba(212, 175, 55, 0.1); border-color: var(--gold); }
+        .idol-img { font-size: 2rem; margin-bottom: 5px; }
+        .idol-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #aaa; }
+
+        .bead-string-container {
+            height: 300px; display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden; margin-top: 20px;
+        }
+        .mala-string {
+            position: absolute; width: 120%; height: 2px; background: #555;
+            top: 50%; left: -10%; z-index: 1;
+        }
+        /* The Beads */
+        .bead {
+            width: 60px; height: 60px; background: url('https://www.transparenttextures.com/patterns/wood-pattern.png'), radial-gradient(circle at 30% 30%, #8B4513, #3e1e05);
+            border-radius: 50%; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); z-index: 2;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.5);
+            transition: transform 0.2s var(--ease), left 0.2s var(--ease), opacity 0.2s;
+            cursor: pointer; border: 1px solid #5c3a1e;
+        }
+        /* Bead States for Animation */
+        .bead.current { left: 50%; transform: translate(-50%, -50%) scale(1.2); z-index: 10; border-color: var(--gold); }
+        .bead.next { left: 80%; transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+        .bead.prev { left: 20%; transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+        .bead.exit { left: -10%; opacity: 0; }
+        .bead.enter { left: 110%; opacity: 0; }
+
+        .mantra-hud { text-align: center; margin-top: 10px; }
+        .counter-big { font-family: var(--font-display); font-size: 4rem; color: var(--gold); line-height: 1; }
+        .mantra-text { font-family: var(--font-display); color: #fff; font-size: 1.2rem; margin-top: 10px; opacity: 0; animation: fadeUp 0.5s forwards; }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* --- VIEW: PANCHANG (Yearly Calendar) --- */
+        #view-panchang { padding: 20px; background: #050505; }
         
-        .mantra-display-box {
-            background: linear-gradient(135deg, #151515, #0a0a0a); border: 1px solid #333;
-            border-radius: 16px; padding: 30px; text-align: center; margin-bottom: 20px;
-            min-height: 200px; display: flex; flex-direction: column; justify-content: center;
+        .year-header { font-family: var(--font-display); font-size: 2rem; color: var(--gold); margin-bottom: 20px; }
+        
+        .months-carousel {
+            display: flex; gap: 20px; overflow-x: auto; padding-bottom: 30px;
+            scroll-snap-type: x mandatory;
         }
-        .sanskrit-text { font-size: 1.5rem; color: var(--gold); margin-bottom: 15px; line-height: 1.4; }
-        .meaning-text { font-size: 0.9rem; color: #ccc; font-style: italic; }
+        .month-card {
+            min-width: 300px; background: #111; border: 1px solid #222; border-radius: 16px;
+            padding: 20px; scroll-snap-align: center;
+        }
+        .m-title { text-align: center; color: #fff; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .cal-head { color: #555; font-size: 0.7rem; padding-bottom: 5px; }
+        .cal-day { 
+            font-size: 0.8rem; padding: 8px 0; color: #888; border-radius: 4px;
+        }
+        .cal-day.somvar { color: #4CAF50; background: rgba(76,175,80,0.1); font-weight: bold; }
+        .cal-day.today { background: var(--gold); color: #000; font-weight: bold; box-shadow: 0 0 10px var(--gold-dim); }
 
-        /* --- VIEW 3: GURUKUL (STORY & CALENDAR) --- */
-        .story-hero {
-            height: 200px; background: linear-gradient(to bottom, transparent, #000), url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Adiyogi_Shiva_statue_at_Isha_Yoga_Center%2C_Coimbatore.jpg/640px-Adiyogi_Shiva_statue_at_Isha_Yoga_Center%2C_Coimbatore.jpg');
-            background-size: cover; background-position: center; border-radius: 16px; margin-bottom: 20px;
-            display: flex; align-items: flex-end; padding: 20px;
+        /* --- NAVIGATION --- */
+        .nav-island {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(20,20,20,0.9); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 40px;
+            padding: 10px 25px; display: flex; gap: 25px; z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 15px; }
-        .cal-day { padding: 10px; text-align: center; background: #1a1a1a; border-radius: 4px; font-size: 0.8rem; color: #666; }
-        .cal-day.somvar { background: rgba(76, 175, 80, 0.2); color: #4CAF50; border: 1px solid #4CAF50; }
-        .cal-day.today { background: var(--gold); color: #000; font-weight: bold; }
-
-        /* --- VIEW 4: YATRA (MAPS) --- */
-        .loc-input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .loc-input { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 8px; font-size: 1rem; }
-        .loc-btn { background: var(--gold); color: #000; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .map-frame { width: 100%; height: 400px; background: #111; border-radius: 16px; border: none; }
-
-        /* --- NAVIGATION DOCK --- */
-        .nav-dock {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height);
-            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.05); z-index: 1000;
-            display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: env(safe-area-inset-bottom);
+        .nav-icon {
+            font-size: 1.5rem; opacity: 0.5; transition: 0.3s; cursor: pointer;
+            position: relative;
         }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
-            color: #555; font-size: 0.65rem; font-weight: 500; cursor: pointer; transition: 0.3s;
-            width: 20%;
+        .nav-icon.active { opacity: 1; transform: translateY(-5px); }
+        .nav-icon.active::after {
+            content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+            width: 4px; height: 4px; background: var(--gold); border-radius: 50%;
         }
-        .nav-icon { font-size: 1.4rem; transition: 0.3s; }
-        .nav-item.active { color: var(--gold); }
-        .nav-item.active .nav-icon { transform: translateY(-3px); filter: drop-shadow(0 0 10px var(--gold)); }
 
     </style>
 </head>
 <body>
 
-    <div id="audio-dock">
-        <div class="h1" style="font-size:1rem;">MAHA KAILASH</div>
-        <div class="dock-controls">
-            <div class="snd-btn" onclick="AudioSys.toggle('om', this)">🕉️</div>
-            <div class="snd-btn" onclick="AudioSys.toggle('bell', this)">🔔</div>
-            <div class="snd-btn" onclick="AudioSys.toggle('flute', this)">🎋</div>
+    <div id="intro-layer" onscroll="checkScroll()">
+        <div class="intro-content">
+            <div class="trishul-glyph" id="glyph">Ψ</div>
+            <div class="scroll-hint">SCROLL TO ASCEND</div>
         </div>
     </div>
 
-    <div id="viewport">
+    <div id="os-layer">
+        
+        <div class="viewport">
+            
+            <div id="view-japa" class="view active">
+                <div style="padding:20px;">
+                    <div style="font-family:var(--font-display); color:var(--gold); text-align:center;">Mantra Yoga</div>
+                </div>
 
-        <div id="view-sanctum" class="view active">
-            <div class="altar-stage">
-                <div class="kalash" onclick="Visuals.pour()"></div>
-                <div id="stream" class="stream"></div>
-                
-                <div class="lingam">
-                    <div class="tripundra">
-                        <div class="line"></div><div class="line"></div><div class="line"></div>
-                        <div class="dot"></div>
+                <div class="idol-selector">
+                    <div class="idol-chip active" onclick="Japa.setDeity('shiva', this)">
+                        <div class="idol-img">🔱</div><div class="idol-lbl">Shiva</div>
+                    </div>
+                    <div class="idol-chip" onclick="Japa.setDeity('ganesh', this)">
+                        <div class="idol-img">🐘</div><div class="idol-lbl">Ganesh</div>
+                    </div>
+                    <div class="idol-chip" onclick="Japa.setDeity('devi', this)">
+                        <div class="idol-img">🦁</div><div class="idol-lbl">Devi</div>
+                    </div>
+                    <div class="idol-chip" onclick="Japa.setDeity('hanuman', this)">
+                        <div class="idol-img">🐵</div><div class="idol-lbl">Hanuman</div>
                     </div>
                 </div>
 
-                <div class="diya" onclick="Visuals.light()">
-                    <div id="flame" class="flame"></div>
-                    <svg width="70" viewBox="0 0 100 50"><path d="M0,20 Q50,60 100,20 L100,25 Q50,70 0,25 Z" fill="#5c3a1e"/></svg>
+                <div class="bead-string-container" onclick="Japa.pullBead()">
+                    <div class="mala-string"></div>
+                    <div class="bead prev" id="b-prev"></div>
+                    <div class="bead current" id="b-curr"></div>
+                    <div class="bead next" id="b-next"></div>
+                    <div class="bead enter" id="b-ent"></div>
                 </div>
+
+                <div class="mantra-hud">
+                    <div class="counter-big" id="jap-count">0</div>
+                    <div class="mantra-text" id="mantra-display">Om Namah Shivaya</div>
+                    <p style="color:#666; font-size:0.8rem; margin-top:20px;">Tap Beads to Count</p>
+                </div>
+            </div>
+
+            <div id="view-panchang" class="view">
+                <div class="year-header">Year 2025</div>
+                <div class="months-carousel" id="cal-container">
+                    </div>
+                <div style="text-align:center; color:#666; font-size:0.8rem; margin-top:20px;">
+                    Swipe horizontal to see months.<br>Green days are Somvar (Sacred).
+                </div>
+            </div>
+
+            <div id="view-yatra" class="view" style="background:#111; padding:20px;">
+                <div style="font-family:var(--font-display); color:var(--gold); font-size:1.5rem; margin-bottom:20px;">Temple Locator</div>
                 
-                <p style="margin-top:40px; color:#888; font-size:0.8rem;">Tap Pot to Pour • Tap Lamp to Light</p>
-            </div>
-        </div>
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <input type="text" id="city" placeholder="City (e.g. Ujjain)" style="background:#222; border:1px solid #333; color:#fff; padding:15px; border-radius:8px; flex:1;">
+                    <button onclick="locateTemples()" style="background:var(--gold); border:none; padding:0 20px; border-radius:8px; font-weight:bold;">GO</button>
+                </div>
 
-        <div id="view-mantra" class="view">
-            <div class="h2" style="color:var(--gold);">Shiva Parivar</div>
-            <p class="sub" style="margin-bottom:20px;">Select a Deity to Worship</p>
-
-            <div class="idol-carousel">
-                <div class="idol-card active" onclick="MantraSys.load('shiva', this)">
-                    <div class="idol-icon">🔱</div>
-                    <div class="idol-name">Shiva</div>
-                </div>
-                <div class="idol-card" onclick="MantraSys.load('ganesh', this)">
-                    <div class="idol-icon">🐘</div>
-                    <div class="idol-name">Ganesh</div>
-                </div>
-                <div class="idol-card" onclick="MantraSys.load('parvati', this)">
-                    <div class="idol-icon">🌺</div>
-                    <div class="idol-name">Parvati</div>
-                </div>
-                <div class="idol-card" onclick="MantraSys.load('kartikeya', this)">
-                    <div class="idol-icon">🦚</div>
-                    <div class="idol-name">Kartikeya</div>
-                </div>
-                <div class="idol-card" onclick="MantraSys.load('nandi', this)">
-                    <div class="idol-icon">🐂</div>
-                    <div class="idol-name">Nandi</div>
-                </div>
+                <iframe id="gmap" width="100%" height="400" style="border:0; border-radius:16px;" loading="lazy" allowfullscreen></iframe>
             </div>
 
-            <div class="mantra-display-box" id="mantra-box">
-                <div class="sanskrit-text" id="sanskrit">Om Namah Shivaya</div>
-                <div class="meaning-text" id="meaning">I bow to Shiva. The supreme reality, the inner self.</div>
-            </div>
-
-            <div class="h2">Chant Counter</div>
-            <div style="background:#111; padding:20px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-size:2rem; font-family:'Cinzel';" id="chant-count">0</div>
-                <button onclick="MantraSys.count()" style="background:var(--gold); color:#000; border:none; padding:10px 30px; border-radius:30px; font-weight:bold;">CHANT +1</button>
-            </div>
         </div>
 
-        <div id="view-gurukul" class="view">
-            <div class="story-hero">
-                <div>
-                    <div class="h1">ADIYOGI</div>
-                    <div class="sub" style="color:#ddd;">The First Yogi • The Source of Yoga</div>
-                </div>
-            </div>
-            <div style="background:#111; padding:20px; border-radius:12px; line-height:1.6; color:#ccc; margin-bottom:30px;">
-                <p>Over 15,000 years ago, in the upper reaches of the Himalayas, a being appeared. He was not a god, but the first Yogi. He danced the dance of ecstasy and stillness.</p>
-                <p>He transmitted the science of Yoga to the Saptarishis on the banks of Kanti Sarovar, ensuring that human consciousness could evolve beyond physical limitations.</p>
-            </div>
-
-            <div class="h2" style="color:var(--gold);">Panchang (Calendar)</div>
-            <div class="sub">Green = Somvar (Monday) • Gold = Today</div>
-            <div class="cal-grid" id="calendar">
-                </div>
+        <div class="nav-island">
+            <div class="nav-icon active" onclick="switchView('japa', this)">📿</div>
+            <div class="nav-icon" onclick="switchView('panchang', this)">📅</div>
+            <div class="nav-icon" onclick="switchView('yatra', this)">📍</div>
         </div>
 
-        <div id="view-yatra" class="view">
-            <div class="h2">Temple Finder</div>
-            <p class="sub" style="margin-bottom:20px;">Locate Shiva Temples near you.</p>
-
-            <div class="loc-input-group">
-                <input type="text" id="city-in" class="loc-input" placeholder="City (e.g. Varanasi)">
-                <input type="text" id="state-in" class="loc-input" placeholder="State">
-                <button class="loc-btn" onclick="Yatra.search()">GO</button>
-            </div>
-
-            <iframe id="map-embed" class="map-frame" src="https://www.google.com/maps?q=Shiva+Temples+India&output=embed"></iframe>
-            
-            <div style="margin-top:20px; background:#111; padding:15px; border-radius:8px; font-size:0.8rem; color:#888;">
-                *Enter your city and state above to update the map with nearby temples.
-            </div>
-        </div>
-
-        <div id="view-media" class="view">
-            <div class="h2">Sacred Media</div>
-            <div style="display:grid; gap:15px;">
-                <div style="background:#111; padding:20px; border-radius:12px; border:1px solid #333;" onclick="window.open('https://open.spotify.com/playlist/37i9dQZF1DX6aTaZa0K6VA', '_blank')">
-                    <div style="color:var(--gold);">🎵 Shiva Chants (Spotify)</div>
-                </div>
-                <div style="background:#111; padding:20px; border-radius:12px; border:1px solid #333;" onclick="window.open('https://www.youtube.com/results?search_query=live+mahakaleshwar+aarti', '_blank')">
-                    <div style="color:var(--gold);">📺 Live Mahakal Aarti (YouTube)</div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="nav-dock">
-        <div class="nav-item active" onclick="Router.go('sanctum', this)">
-            <div class="nav-icon">🕉️</div><div>Sanctum</div>
-        </div>
-        <div class="nav-item" onclick="Router.go('mantra', this)">
-            <div class="nav-icon">📿</div><div>Mantra</div>
-        </div>
-        <div class="nav-item" onclick="Router.go('gurukul', this)">
-            <div class="nav-icon">📜</div><div>Gurukul</div>
-        </div>
-        <div class="nav-item" onclick="Router.go('yatra', this)">
-            <div class="nav-icon">📍</div><div>Yatra</div>
-        </div>
-        <div class="nav-item" onclick="Router.go('media', this)">
-            <div class="nav-icon">🎵</div><div>Media</div>
-        </div>
     </div>
 
     <script>
-        /* --- 1. AUDIO ENGINE --- */
-        const AudioSys = {
-            ctx: null, nodes: {},
-            init() { if(!this.ctx) this.ctx = new (window.AudioContext||window.webkitAudioContext)(); },
-            toggle(type, btn) {
-                this.init();
-                if(this.nodes[type]) {
-                    this.nodes[type].stop(); delete this.nodes[type];
-                    btn.classList.remove('active');
-                } else {
-                    btn.classList.add('active');
-                    const osc = this.ctx.createOscillator();
-                    const g = this.ctx.createGain();
-                    if(type === 'om') { osc.frequency.value=136.1; osc.type='sawtooth'; g.gain.value=0.1; }
-                    else if(type === 'flute') { osc.frequency.value=440; osc.type='sine'; g.gain.value=0.05; }
-                    else { /* Bell */ this.playBell(); btn.classList.remove('active'); return; }
-                    osc.connect(g); g.connect(this.ctx.destination);
-                    osc.start(); this.nodes[type]=osc;
-                }
-            },
-            playBell() {
-                const now = this.ctx.currentTime;
-                [200,560,900].forEach((f,i)=>{
-                    const o=this.ctx.createOscillator(); const g=this.ctx.createGain();
-                    o.frequency.value=f; g.gain.setValueAtTime(0,now);
-                    g.gain.linearRampToValueAtTime(0.3/(i+1),now+0.05);
-                    g.gain.exponentialRampToValueAtTime(0.001,now+4);
-                    o.connect(g); g.connect(this.ctx.destination);
-                    o.start(now); o.stop(now+4);
-                });
-            },
-            playWater() {
-                this.init();
-                const b = this.ctx.createBuffer(1,this.ctx.sampleRate,this.ctx.sampleRate);
-                const d = b.getChannelData(0);
-                for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.2;
-                const s = this.ctx.createBufferSource(); s.buffer=b;
-                const f = this.ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=400;
-                const g = this.ctx.createGain(); g.gain.value=0.5;
-                s.connect(f); f.connect(g); g.connect(this.ctx.destination);
-                s.start();
-            }
-        };
-
-        /* --- 2. VISUALS --- */
-        const Visuals = {
-            pour() {
-                const s = document.getElementById('stream');
-                if(s.classList.contains('on')) return;
-                AudioSys.playWater();
-                s.classList.add('on'); setTimeout(()=>s.classList.remove('on'), 2500);
-            },
-            light() {
-                const f = document.getElementById('flame');
-                if(!f.classList.contains('lit')) AudioSys.playBell(); // Sound feedback
-                f.classList.toggle('lit');
-            }
-        };
-
-        /* --- 3. MANTRA FAMILY SYSTEM --- */
-        const MantraSys = {
-            countVal: 0,
-            data: {
-                'shiva': { t: "Om Namah Shivaya", m: "I bow to Shiva, the supreme self." },
-                'ganesh': { t: "Om Gam Ganapataye Namaha", m: "Remover of obstacles, Lord of beginnings." },
-                'parvati': { t: "Om Hrim Shrim Ambikayai Namaha", m: "Salutations to the Divine Mother Energy." },
-                'kartikeya': { t: "Om Saravanabhavaya Namaha", m: "Victory to the commander of divine forces." },
-                'nandi': { t: "Om Nandi-Rudra-Vahanaya Namaha", m: "Salutations to the devoted vehicle of Shiva." }
-            },
-            load(key, btn) {
-                document.querySelectorAll('.idol-card').forEach(c=>c.classList.remove('active'));
-                btn.classList.add('active');
-                const d = this.data[key];
-                document.getElementById('sanskrit').innerText = d.t;
-                document.getElementById('meaning').innerText = d.m;
-                // Vibration feedback
-                if(navigator.vibrate) navigator.vibrate(50);
-            },
-            count() {
-                this.countVal++;
-                document.getElementById('chant-count').innerText = this.countVal;
-                if(navigator.vibrate) navigator.vibrate(20);
-            }
-        };
-
-        /* --- 4. YATRA (MAPS) --- */
-        const Yatra = {
-            search() {
-                const c = document.getElementById('city-in').value;
-                const s = document.getElementById('state-in').value;
-                if(c && s) {
-                    const q = `Shiva Temples in ${c}, ${s}`;
-                    document.getElementById('map-embed').src = `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
-                    // Save location
-                    localStorage.setItem('shiva_loc', JSON.stringify({c,s}));
-                }
-            },
-            init() {
-                const saved = JSON.parse(localStorage.getItem('shiva_loc'));
-                if(saved) {
-                    document.getElementById('city-in').value = saved.c;
-                    document.getElementById('state-in').value = saved.s;
-                    this.search();
-                }
-            }
-        };
-
-        /* --- 5. CALENDAR GENERATOR --- */
-        function initCalendar() {
-            const g = document.getElementById('calendar');
-            const dt = new Date();
-            const today = dt.getDate();
-            // Simple logic for current month display
-            for(let i=1; i<=30; i++) {
-                const d = document.createElement('div');
-                d.className = 'cal-day';
-                d.innerText = i;
-                
-                // Determine Day of week (Mocking current month offset)
-                const check = new Date(dt.getFullYear(), dt.getMonth(), i);
-                if(check.getDay() === 1) d.classList.add('somvar'); // Monday
-                if(i === today) d.classList.add('today');
-                
-                g.appendChild(d);
+        /* --- 1. SCROLL ENTRY LOGIC --- */
+        function checkScroll() {
+            const el = document.getElementById('intro-layer');
+            const glyph = document.getElementById('glyph');
+            const scroll = el.scrollTop;
+            
+            // Fade glyph on scroll
+            glyph.style.opacity = 1 - (scroll / 300);
+            
+            if (scroll > 200) {
+                // Unlock App
+                el.style.opacity = 0;
+                el.style.pointerEvents = 'none';
+                document.getElementById('os-layer').classList.add('active');
             }
         }
 
-        /* --- 6. ROUTER --- */
-        const Router = {
-            go(id, btn) {
-                document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-                document.getElementById('view-'+id).classList.add('active');
-                document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-                btn.classList.add('active');
+        /* --- 2. VIRTUAL MALA ENGINE (PHYSICS) --- */
+        const Japa = {
+            count: 0,
+            mantras: {
+                'shiva': 'Om Namah Shivaya',
+                'ganesh': 'Om Gam Ganapataye Namaha',
+                'devi': 'Om Dum Durgaye Namaha',
+                'hanuman': 'Om Hanumate Namaha'
+            },
+            currentDeity: 'shiva',
+            
+            setDeity(key, el) {
+                this.currentDeity = key;
+                document.getElementById('mantra-display').innerText = this.mantras[key];
+                document.querySelectorAll('.idol-chip').forEach(c => c.classList.remove('active'));
+                el.classList.add('active');
+                this.count = 0;
+                document.getElementById('jap-count').innerText = 0;
+            },
+
+            pullBead() {
+                // 1. Update Logic
+                this.count++;
+                document.getElementById('jap-count').innerText = this.count;
+                
+                // 2. Haptics (Vibrate Phone)
+                if(navigator.vibrate) navigator.vibrate(15); // Short, sharp click feel
+
+                // 3. Animation Sequence
+                const prev = document.getElementById('b-prev');
+                const curr = document.getElementById('b-curr');
+                const next = document.getElementById('b-next');
+                const ent = document.getElementById('b-ent');
+
+                // Shift classes
+                prev.className = 'bead exit'; // Old prev leaves
+                curr.className = 'bead prev'; // Current becomes prev
+                next.className = 'bead current'; // Next becomes current
+                ent.className = 'bead next'; // Entering becomes next
+
+                // Reset DOM after animation (200ms) to allow infinite loop
+                setTimeout(() => {
+                    // Create a new "Entering" bead to replace the one that moved up
+                    const newBead = document.createElement('div');
+                    newBead.className = 'bead enter';
+                    newBead.id = 'b-temp'; 
+                    document.querySelector('.bead-string-container').appendChild(newBead);
+
+                    // Recycle elements (Reset IDs)
+                    // In a real React app we'd use state, here we cheat with DOM swapping for performance
+                    prev.remove(); // Remove the exited one
+                    curr.id = 'b-prev';
+                    next.id = 'b-curr';
+                    ent.id = 'b-next';
+                    newBead.id = 'b-ent';
+                }, 200);
             }
         };
 
-        // Initialize
+        /* --- 3. CALENDAR ENGINE (ALGORITHM) --- */
+        function initCalendar() {
+            const container = document.getElementById('cal-container');
+            const year = 2025;
+            const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+            
+            const today = new Date();
+
+            months.forEach((mName, mIndex) => {
+                const card = document.createElement('div');
+                card.className = 'month-card';
+                
+                let html = `<div class="m-title">${mName}</div>
+                            <div class="cal-grid">
+                                <div class="cal-head">S</div><div class="cal-head">M</div><div class="cal-head">T</div><div class="cal-head">W</div><div class="cal-head">T</div><div class="cal-head">F</div><div class="cal-head">S</div>`;
+                
+                // Days logic
+                const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
+                const firstDay = new Date(year, mIndex, 1).getDay(); // 0 = Sun
+                
+                // Empty slots
+                for(let i=0; i<firstDay; i++) html += `<div></div>`;
+                
+                // Days
+                for(let d=1; d<=daysInMonth; d++) {
+                    const dateObj = new Date(year, mIndex, d);
+                    let classes = 'cal-day';
+                    
+                    // Somvar Check (Monday = 1)
+                    if(dateObj.getDay() === 1) classes += ' somvar';
+                    
+                    // Today Check
+                    if(d === today.getDate() && mIndex === today.getMonth() && year === today.getFullYear()) classes += ' today';
+                    
+                    html += `<div class="${classes}">${d}</div>`;
+                }
+                
+                html += `</div>`;
+                card.innerHTML = html;
+                container.appendChild(card);
+            });
+        }
+
+        /* --- 4. MAPS & NAV --- */
+        function locateTemples() {
+            const city = document.getElementById('city').value;
+            if(!city) return;
+            const q = `Shiva Temples in ${city}`;
+            document.getElementById('gmap').src = `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
+        }
+
+        function switchView(id, btn) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-'+id).classList.add('active');
+            document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Init
         initCalendar();
-        Yatra.init();
 
     </script>
 </body>
