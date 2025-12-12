@@ -3,308 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Shiva Consciousness: Ultimate</title>
-    <meta name="theme-color" content="#0f0c29">
+    <title>Maha-Kailash Super App</title>
+    <meta name="theme-color" content="#080808">
     <style>
-        /* --- 1. PREMIUM THEME ENGINE --- */
+        /* --- 1. ENTERPRISE GRADE DESIGN SYSTEM --- */
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;500;600&display=swap');
 
         :root {
-            --bg-dark: #0f0c29;
-            --bg-mid: #302b63;
-            --bg-light: #24243e;
-            --glass: rgba(255, 255, 255, 0.08);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.12);
+            --bg-deep: #050505;
+            --surface: #121212;
+            --surface-glass: rgba(20, 20, 20, 0.85);
+            --border: 1px solid rgba(255, 255, 255, 0.1);
+            
+            /* Spiritual Palette */
             --gold: #FFD700;
-            --gold-glow: rgba(255, 215, 0, 0.4);
-            --accent: #b08bf8;
-            --rudra: #ff5252;
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-            --nav-height: 85px;
+            --gold-glow: rgba(255, 215, 0, 0.3);
+            --rudra-red: #D32F2F;
+            --shiva-blue: #5C6BC0;
+            --ganesh-orange: #FF9800;
+            --parvati-pink: #E91E63;
+            
+            --nav-height: 85px; /* Taller for mobile touch targets */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 
         body {
-            margin: 0; background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid));
-            color: var(--text-main); font-family: 'Inter', sans-serif;
-            height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+            margin: 0; background: var(--bg-deep); color: #fff;
+            font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* UTILS */
-        .hidden { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* TYPOGRAPHY */
+        .h1 { font-family: 'Cinzel', serif; font-weight: 700; color: var(--gold); margin: 0; }
+        .h2 { font-family: 'Cinzel', serif; font-size: 1.2rem; color: #fff; margin-bottom: 10px; }
+        .sub { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- 2. AUDIO DOCK (PERSISTENT) --- */
+        /* --- 2. PERSISTENT AUDIO DOCK --- */
         #audio-dock {
             position: absolute; top: 0; left: 0; width: 100%; height: 60px;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); z-index: 100;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 100;
             display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
-            border-bottom: var(--glass-border);
+            border-bottom: var(--border); padding-top: env(safe-area-inset-top);
         }
-        .dock-title { font-family: 'Cinzel'; color: var(--gold); font-size: 0.9rem; letter-spacing: 1px; }
-        .audio-controls { display: flex; gap: 15px; }
-        .sound-btn { 
-            background: var(--glass); border: var(--glass-border); color: #fff; 
-            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; transition: 0.3s; font-size: 0.8rem;
+        .dock-controls { display: flex; gap: 10px; }
+        .snd-btn { 
+            width: 36px; height: 36px; border-radius: 50%; background: #222; border: var(--border);
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s;
         }
-        .sound-btn.active { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold-glow); }
+        .snd-btn.active { background: var(--gold); color: #000; box-shadow: 0 0 10px var(--gold-glow); }
 
-        /* --- 3. VIEWPORT --- */
-        #viewport { flex: 1; position: relative; overflow: hidden; margin-top: 60px; } /* Offset for audio dock */
+        /* --- 3. VIEWPORT MANAGER --- */
+        #viewport { flex: 1; position: relative; overflow: hidden; margin-top: 60px; }
         
         .view {
             position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden;
-            padding: 20px; padding-bottom: 120px; /* Nav space */
-            display: none; opacity: 0; transition: 0.4s;
+            padding: 20px; padding-bottom: 140px; /* Space for nav + safe area */
+            display: none; opacity: 0; transform: scale(0.98); transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        .view.active { display: block; opacity: 1; }
+        .view.active { display: block; opacity: 1; transform: scale(1); }
 
-        /* --- VIEW: SANCTUM (ABHISHEKAM) --- */
-        .altar-stage {
-            display: flex; flex-direction: column; align-items: center; position: relative;
-            height: 80vh; justify-content: center;
-        }
+        /* --- VIEW 1: SANCTUM (Legacy Abhishekam) --- */
+        #view-sanctum { background: radial-gradient(circle at center, #1e1e2f, #000); }
+        .altar-stage { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        /* Interactive Pot */
-        .kalash-wrapper { position: relative; z-index: 20; cursor: pointer; transition: transform 0.3s; }
-        .kalash-wrapper:active { transform: rotate(-5deg); }
-        .rope { width: 2px; height: 60px; background: #555; margin: 0 auto; }
-        .pot-body { 
-            width: 90px; height: 70px; background: linear-gradient(135deg, #cd7f32, #f0e68c); 
-            border-radius: 10px 10px 50px 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            position: relative; overflow: hidden;
-        }
-        /* Water Level Indicator */
-        .water-level { 
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 80%; 
-            background: rgba(135, 206, 235, 0.5); transition: height 0.5s; 
-        }
-        
-        /* Physics Stream */
-        .stream-jet {
-            position: absolute; top: 130px; left: 50%; transform: translateX(-50%);
-            width: 6px; height: 0; background: linear-gradient(to bottom, #fff, #a2d9ff);
-            opacity: 0.8; transition: height 0.2s; z-index: 15; box-shadow: 0 0 15px #a2d9ff;
-            border-radius: 4px;
-        }
-        .stream-jet.flowing { height: 200px; }
-
-        /* Shivling */
-        .lingam-base {
-            width: 140px; height: 200px; margin-top: 80px; 
-            background: radial-gradient(circle at 30% 30%, #444, #000 90%); 
-            border-radius: 70px 70px 30px 30px; position: relative; z-index: 10;
-            box-shadow: inset 5px 5px 20px rgba(255,255,255,0.1), 0 0 50px rgba(0,0,0,0.8);
-        }
+        /* Interactive Elements */
+        .kalash { width: 90px; height: 70px; background: linear-gradient(135deg, #b87333, #f0e68c); border-radius: 10px 10px 50px 50px; cursor: pointer; position: relative; z-index: 20; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .stream { position: absolute; top: 130px; left: 50%; transform: translateX(-50%); width: 6px; height: 0; background: linear-gradient(to bottom, #fff, #a2d9ff); transition: 0.2s; z-index: 15; border-radius: 4px; opacity: 0.8; }
+        .stream.on { height: 200px; }
+        .lingam { width: 130px; height: 190px; margin-top: 80px; background: radial-gradient(circle at 30% 30%, #444, #000 90%); border-radius: 65px 65px 30px 30px; position: relative; z-index: 10; box-shadow: inset 5px 5px 20px rgba(255,255,255,0.1); }
         .tripundra { position: absolute; top: 60px; width: 100%; text-align: center; opacity: 0.9; }
-        .ash-mark { width: 80px; height: 4px; background: #ddd; margin: 5px auto; border-radius: 50%; box-shadow: 0 0 5px #fff; }
-        .bindi { width: 10px; height: 10px; background: var(--rudra); border-radius: 50%; margin: 6px auto; box-shadow: 0 0 10px var(--rudra); }
+        .line { width: 80px; height: 4px; background: #ddd; margin: 5px auto; border-radius: 50%; box-shadow: 0 0 5px #fff; }
+        .dot { width: 10px; height: 10px; background: #d32f2f; border-radius: 50%; margin: 6px auto; box-shadow: 0 0 10px red; }
+        .diya { position: absolute; bottom: 80px; cursor: pointer; z-index: 25; filter: drop-shadow(0 0 10px #000); }
+        .flame { position: absolute; top: -20px; left: 50%; transform: translateX(-50%) scale(0); width: 14px; height: 30px; background: radial-gradient(gold, orangered); border-radius: 50% 50% 20px 20px; transition: 0.3s; filter: blur(2px); }
+        .flame.lit { transform: translateX(-50%) scale(1); animation: flicker 0.1s infinite alternate; }
+        @keyframes flicker { 0% { opacity: 0.8; transform: translateX(-50%) scale(1); } 100% { opacity: 1; transform: translateX(-50%) scale(1.1); } }
 
-        /* Flower Particles */
-        .flower { position: absolute; font-size: 1.2rem; animation: fall 2s forwards; z-index: 12; pointer-events: none; }
-        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(150px) rotate(360deg); opacity: 0; } }
-
-        /* Controls */
-        .ritual-controls {
-            display: flex; gap: 15px; margin-top: 40px;
-        }
-        .ritual-btn {
-            background: var(--glass); border: var(--glass-border); color: #fff;
-            padding: 12px 24px; border-radius: 30px; display: flex; align-items: center; gap: 8px;
+        /* --- VIEW 2: MANTRA CORNER (FAMILY) --- */
+        #view-mantra { background: #080808; }
+        .idol-carousel { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; scrollbar-width: none; }
+        .idol-card {
+            min-width: 100px; height: 120px; background: #1a1a1a; border-radius: 12px; border: 1px solid #333;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; transition: 0.3s;
         }
-        .ritual-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--gold); }
-        .ritual-btn.flower-btn { color: #ffb7b2; }
-
-        /* --- VIEW: MEDITATE (AUDIO + TIMER) --- */
-        .timer-circle {
-            width: 250px; height: 250px; border: 2px solid var(--glass-border); border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            margin: 40px auto; position: relative; background: var(--glass); backdrop-filter: blur(10px);
-            box-shadow: 0 0 40px rgba(0,0,0,0.3);
-        }
-        .time-display { font-size: 3.5rem; font-family: 'Cinzel'; color: var(--gold); }
-        .breath-label { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
+        .idol-card.active { border-color: var(--gold); background: #222; transform: scale(1.05); }
+        .idol-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .idol-name { font-size: 0.75rem; text-transform: uppercase; color: #aaa; }
         
-        .timer-controls { display: flex; justify-content: center; gap: 20px; }
-        .med-btn { 
-            background: var(--gold); color: #000; border: none; padding: 15px 40px; 
-            border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase; 
-            letter-spacing: 1px; box-shadow: 0 0 20px var(--gold-glow); transition: 0.3s;
+        .mantra-display-box {
+            background: linear-gradient(135deg, #151515, #0a0a0a); border: 1px solid #333;
+            border-radius: 16px; padding: 30px; text-align: center; margin-bottom: 20px;
+            min-height: 200px; display: flex; flex-direction: column; justify-content: center;
         }
-        .med-btn.active { background: var(--rudra); color: #fff; box-shadow: 0 0 20px rgba(255,82,82,0.4); }
+        .sanskrit-text { font-size: 1.5rem; color: var(--gold); margin-bottom: 15px; line-height: 1.4; }
+        .meaning-text { font-size: 0.9rem; color: #ccc; font-style: italic; }
 
-        /* --- VIEW: MEDIA (SPOTIFY / YOUTUBE) --- */
-        .media-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        .media-card {
-            background: var(--glass); border: var(--glass-border); border-radius: 16px;
-            padding: 20px; transition: 0.3s; cursor: pointer; position: relative; overflow: hidden;
+        /* --- VIEW 3: GURUKUL (STORY & CALENDAR) --- */
+        .story-hero {
+            height: 200px; background: linear-gradient(to bottom, transparent, #000), url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Adiyogi_Shiva_statue_at_Isha_Yoga_Center%2C_Coimbatore.jpg/640px-Adiyogi_Shiva_statue_at_Isha_Yoga_Center%2C_Coimbatore.jpg');
+            background-size: cover; background-position: center; border-radius: 16px; margin-bottom: 20px;
+            display: flex; align-items: flex-end; padding: 20px;
         }
-        .media-card:hover { transform: translateY(-3px); border-color: var(--gold); }
-        .card-icon { font-size: 1.5rem; margin-bottom: 10px; }
-        .card-head { font-family: 'Cinzel'; font-size: 1.1rem; color: var(--gold); margin-bottom: 5px; }
-        .card-sub { font-size: 0.8rem; color: var(--text-muted); }
-        
-        .spotify-embed-container { margin-top: 15px; border-radius: 8px; overflow: hidden; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 15px; }
+        .cal-day { padding: 10px; text-align: center; background: #1a1a1a; border-radius: 4px; font-size: 0.8rem; color: #666; }
+        .cal-day.somvar { background: rgba(76, 175, 80, 0.2); color: #4CAF50; border: 1px solid #4CAF50; }
+        .cal-day.today { background: var(--gold); color: #000; font-weight: bold; }
 
-        /* --- VIEW: WISDOM --- */
-        .stats-row { display: flex; gap: 15px; margin-bottom: 30px; }
-        .stat-box { 
-            flex: 1; background: var(--glass); padding: 15px; border-radius: 12px; 
-            border: var(--glass-border); text-align: center; 
-        }
-        .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
-        .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+        /* --- VIEW 4: YATRA (MAPS) --- */
+        .loc-input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .loc-input { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 8px; font-size: 1rem; }
+        .loc-btn { background: var(--gold); color: #000; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .map-frame { width: 100%; height: 400px; background: #111; border-radius: 16px; border: none; }
 
-        .mantra-list { display: flex; flex-direction: column; gap: 10px; }
-        .mantra-item {
-            padding: 15px; background: rgba(0,0,0,0.3); border-left: 3px solid var(--gold);
-            border-radius: 0 8px 8px 0; font-family: 'Cinzel'; color: #fff;
-        }
-
-        /* --- NAVIGATION --- */
+        /* --- NAVIGATION DOCK --- */
         .nav-dock {
             position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height);
-            background: rgba(15, 12, 41, 0.95); backdrop-filter: blur(20px);
-            border-top: var(--glass-border); z-index: 1000;
+            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.05); z-index: 1000;
             display: flex; justify-content: space-around; align-items: center;
             padding-bottom: env(safe-area-inset-bottom);
         }
         .nav-item {
-            display: flex; flex-direction: column; align-items: center; color: var(--text-muted);
-            font-size: 0.7rem; cursor: pointer; transition: 0.3s; gap: 5px;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            color: #555; font-size: 0.65rem; font-weight: 500; cursor: pointer; transition: 0.3s;
+            width: 20%;
         }
-        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+        .nav-icon { font-size: 1.4rem; transition: 0.3s; }
         .nav-item.active { color: var(--gold); }
-        .nav-item.active svg { fill: var(--gold); filter: drop-shadow(0 0 8px var(--gold)); }
+        .nav-item.active .nav-icon { transform: translateY(-3px); filter: drop-shadow(0 0 10px var(--gold)); }
 
     </style>
 </head>
 <body>
 
     <div id="audio-dock">
-        <div class="dock-title">AMBIENT SOUNDSCAPE</div>
-        <div class="audio-controls">
-            <div class="sound-btn" onclick="AudioSys.toggle('om', this)">🕉️</div>
-            <div class="sound-btn" onclick="AudioSys.toggle('flute', this)">🎋</div>
-            <div class="sound-btn" onclick="AudioSys.toggle('bell', this)">🔔</div>
+        <div class="h1" style="font-size:1rem;">MAHA KAILASH</div>
+        <div class="dock-controls">
+            <div class="snd-btn" onclick="AudioSys.toggle('om', this)">🕉️</div>
+            <div class="snd-btn" onclick="AudioSys.toggle('bell', this)">🔔</div>
+            <div class="snd-btn" onclick="AudioSys.toggle('flute', this)">🎋</div>
         </div>
     </div>
 
     <div id="viewport">
-        
+
         <div id="view-sanctum" class="view active">
             <div class="altar-stage">
+                <div class="kalash" onclick="Visuals.pour()"></div>
+                <div id="stream" class="stream"></div>
                 
-                <div class="kalash-wrapper" onclick="Abhishekam.pour()">
-                    <div class="rope"></div>
-                    <div class="pot-body">
-                        <div class="water-level"></div>
-                    </div>
-                    <div id="stream" class="stream-jet"></div>
-                </div>
-
-                <div class="lingam-base">
+                <div class="lingam">
                     <div class="tripundra">
-                        <div class="ash-mark"></div><div class="ash-mark"></div><div class="ash-mark"></div>
-                        <div class="bindi"></div>
+                        <div class="line"></div><div class="line"></div><div class="line"></div>
+                        <div class="dot"></div>
                     </div>
                 </div>
 
-                <div class="ritual-controls">
-                    <div class="ritual-btn" onclick="Abhishekam.pour()">
-                        💧 Pour Water
-                    </div>
-                    <div class="ritual-btn flower-btn" onclick="Abhishekam.dropFlower()">
-                        🌸 Offer Flower
-                    </div>
+                <div class="diya" onclick="Visuals.light()">
+                    <div id="flame" class="flame"></div>
+                    <svg width="70" viewBox="0 0 100 50"><path d="M0,20 Q50,60 100,20 L100,25 Q50,70 0,25 Z" fill="#5c3a1e"/></svg>
                 </div>
                 
-                <p style="margin-top:20px; color:var(--text-muted); font-size:0.8rem;">Blessings Earned: <span id="bless-count" style="color:var(--gold);">0</span></p>
+                <p style="margin-top:40px; color:#888; font-size:0.8rem;">Tap Pot to Pour • Tap Lamp to Light</p>
             </div>
         </div>
 
-        <div id="view-meditate" class="view">
-            <h2 style="font-family:'Cinzel'; text-align:center; color:var(--gold);">Dhyana Engine</h2>
-            
-            <div class="timer-circle">
-                <div id="timer" class="time-display">00:00</div>
-                <div id="breath-state" class="breath-label">Ready</div>
-            </div>
+        <div id="view-mantra" class="view">
+            <div class="h2" style="color:var(--gold);">Shiva Parivar</div>
+            <p class="sub" style="margin-bottom:20px;">Select a Deity to Worship</p>
 
-            <div class="timer-controls">
-                <button id="med-btn" class="med-btn" onclick="Meditate.toggle()">Start</button>
-            </div>
-
-            <div style="margin-top: 40px;">
-                <h3 style="color:var(--text-muted); font-size:0.9rem; text-transform:uppercase;">Guide</h3>
-                <div class="mantra-list">
-                    <div class="mantra-item">Inhale (4s) • Hold (4s) • Exhale (4s)</div>
-                    <div class="mantra-item">Focus on the Third Eye point.</div>
-                    <div class="mantra-item">Listen to the inner silence.</div>
+            <div class="idol-carousel">
+                <div class="idol-card active" onclick="MantraSys.load('shiva', this)">
+                    <div class="idol-icon">🔱</div>
+                    <div class="idol-name">Shiva</div>
                 </div>
+                <div class="idol-card" onclick="MantraSys.load('ganesh', this)">
+                    <div class="idol-icon">🐘</div>
+                    <div class="idol-name">Ganesh</div>
+                </div>
+                <div class="idol-card" onclick="MantraSys.load('parvati', this)">
+                    <div class="idol-icon">🌺</div>
+                    <div class="idol-name">Parvati</div>
+                </div>
+                <div class="idol-card" onclick="MantraSys.load('kartikeya', this)">
+                    <div class="idol-icon">🦚</div>
+                    <div class="idol-name">Kartikeya</div>
+                </div>
+                <div class="idol-card" onclick="MantraSys.load('nandi', this)">
+                    <div class="idol-icon">🐂</div>
+                    <div class="idol-name">Nandi</div>
+                </div>
+            </div>
+
+            <div class="mantra-display-box" id="mantra-box">
+                <div class="sanskrit-text" id="sanskrit">Om Namah Shivaya</div>
+                <div class="meaning-text" id="meaning">I bow to Shiva. The supreme reality, the inner self.</div>
+            </div>
+
+            <div class="h2">Chant Counter</div>
+            <div style="background:#111; padding:20px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:2rem; font-family:'Cinzel';" id="chant-count">0</div>
+                <button onclick="MantraSys.count()" style="background:var(--gold); color:#000; border:none; padding:10px 30px; border-radius:30px; font-weight:bold;">CHANT +1</button>
+            </div>
+        </div>
+
+        <div id="view-gurukul" class="view">
+            <div class="story-hero">
+                <div>
+                    <div class="h1">ADIYOGI</div>
+                    <div class="sub" style="color:#ddd;">The First Yogi • The Source of Yoga</div>
+                </div>
+            </div>
+            <div style="background:#111; padding:20px; border-radius:12px; line-height:1.6; color:#ccc; margin-bottom:30px;">
+                <p>Over 15,000 years ago, in the upper reaches of the Himalayas, a being appeared. He was not a god, but the first Yogi. He danced the dance of ecstasy and stillness.</p>
+                <p>He transmitted the science of Yoga to the Saptarishis on the banks of Kanti Sarovar, ensuring that human consciousness could evolve beyond physical limitations.</p>
+            </div>
+
+            <div class="h2" style="color:var(--gold);">Panchang (Calendar)</div>
+            <div class="sub">Green = Somvar (Monday) • Gold = Today</div>
+            <div class="cal-grid" id="calendar">
+                </div>
+        </div>
+
+        <div id="view-yatra" class="view">
+            <div class="h2">Temple Finder</div>
+            <p class="sub" style="margin-bottom:20px;">Locate Shiva Temples near you.</p>
+
+            <div class="loc-input-group">
+                <input type="text" id="city-in" class="loc-input" placeholder="City (e.g. Varanasi)">
+                <input type="text" id="state-in" class="loc-input" placeholder="State">
+                <button class="loc-btn" onclick="Yatra.search()">GO</button>
+            </div>
+
+            <iframe id="map-embed" class="map-frame" src="https://www.google.com/maps?q=Shiva+Temples+India&output=embed"></iframe>
+            
+            <div style="margin-top:20px; background:#111; padding:15px; border-radius:8px; font-size:0.8rem; color:#888;">
+                *Enter your city and state above to update the map with nearby temples.
             </div>
         </div>
 
         <div id="view-media" class="view">
-            <h2 style="font-family:'Cinzel'; margin-bottom:20px;">Sacred Media</h2>
-            
-            <div class="media-grid">
-                <div class="media-card" onclick="Media.loadSpotify('chants')">
-                    <div class="card-icon">🎵</div>
-                    <div class="card-head">Shiva Chants</div>
-                    <div class="card-sub">Sounds of Isha & Traditional</div>
+            <div class="h2">Sacred Media</div>
+            <div style="display:grid; gap:15px;">
+                <div style="background:#111; padding:20px; border-radius:12px; border:1px solid #333;" onclick="window.open('https://open.spotify.com/playlist/37i9dQZF1DX6aTaZa0K6VA', '_blank')">
+                    <div style="color:var(--gold);">🎵 Shiva Chants (Spotify)</div>
                 </div>
-                
-                <div class="media-card" onclick="Media.loadSpotify('tandav')">
-                    <div class="card-icon">🔥</div>
-                    <div class="card-head">Rudra Tandav</div>
-                    <div class="card-sub">High Energy & Power</div>
-                </div>
-
-                <div id="spotify-container" class="spotify-embed-container hidden">
-                    <iframe id="spotify-frame" src="" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-                </div>
-
-                <div class="media-card" onclick="window.open('https://www.youtube.com/results?search_query=shiva+tandava+stotram+original', '_blank')">
-                    <div class="card-icon">📺</div>
-                    <div class="card-head">Video Darshan</div>
-                    <div class="card-sub">Watch Tandav Stotram & Pujas</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-wisdom" class="view">
-            <h2 style="font-family:'Cinzel'; margin-bottom:20px;">Your Journey</h2>
-
-            <div class="stats-row">
-                <div class="stat-box">
-                    <div class="stat-val" id="stat-days">0</div>
-                    <div class="stat-label">Streak Days</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val" id="stat-mins">0</div>
-                    <div class="stat-label">Mins Dhyan</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val" id="stat-bless">0</div>
-                    <div class="stat-label">Blessings</div>
-                </div>
-            </div>
-
-            <h3 style="color:var(--gold); font-family:'Cinzel'; margin-top:30px;">Mahamantras</h3>
-            <div class="mantra-list">
-                <div class="mantra-item">
-                    <div style="font-size:1.1rem; color:var(--accent);">Om Namah Shivaya</div>
-                    <div style="font-size:0.8rem; color:#aaa;">The Five Syllable Mantra</div>
-                </div>
-                <div class="mantra-item">
-                    <div style="font-size:1.1rem; color:var(--accent);">Maha Mrityunjaya</div>
-                    <div style="font-size:0.8rem; color:#aaa;">For Liberation & Health</div>
+                <div style="background:#111; padding:20px; border-radius:12px; border:1px solid #333;" onclick="window.open('https://www.youtube.com/results?search_query=live+mahakaleshwar+aarti', '_blank')">
+                    <div style="color:var(--gold);">📺 Live Mahakal Aarti (YouTube)</div>
                 </div>
             </div>
         </div>
@@ -313,181 +261,151 @@
 
     <div class="nav-dock">
         <div class="nav-item active" onclick="Router.go('sanctum', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
-            Sanctum
+            <div class="nav-icon">🕉️</div><div>Sanctum</div>
         </div>
-        <div class="nav-item" onclick="Router.go('meditate', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
-            Meditate
+        <div class="nav-item" onclick="Router.go('mantra', this)">
+            <div class="nav-icon">📿</div><div>Mantra</div>
+        </div>
+        <div class="nav-item" onclick="Router.go('gurukul', this)">
+            <div class="nav-icon">📜</div><div>Gurukul</div>
+        </div>
+        <div class="nav-item" onclick="Router.go('yatra', this)">
+            <div class="nav-icon">📍</div><div>Yatra</div>
         </div>
         <div class="nav-item" onclick="Router.go('media', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/></svg>
-            Media
-        </div>
-        <div class="nav-item" onclick="Router.go('wisdom', this)">
-            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-            Wisdom
+            <div class="nav-icon">🎵</div><div>Media</div>
         </div>
     </div>
 
     <script>
-        /* --- 1. STATE & DATA --- */
-        const Store = {
-            data: {
-                streak: parseInt(localStorage.getItem('shiva_streak')||0),
-                mins: parseInt(localStorage.getItem('shiva_mins')||0),
-                blessings: parseInt(localStorage.getItem('shiva_bless')||0)
-            },
-            save() {
-                localStorage.setItem('shiva_streak', this.data.streak);
-                localStorage.setItem('shiva_mins', this.data.mins);
-                localStorage.setItem('shiva_bless', this.data.blessings);
-                this.updateUI();
-            },
-            addBlessing(n=1) { this.data.blessings+=n; this.save(); },
-            addMins(n) { this.data.mins+=n; this.save(); },
-            updateUI() {
-                document.getElementById('bless-count').innerText = this.data.blessings;
-                document.getElementById('stat-bless').innerText = this.data.blessings;
-                document.getElementById('stat-mins').innerText = this.data.mins;
-                document.getElementById('stat-days').innerText = this.data.streak;
-            }
-        };
-
-        /* --- 2. AUDIO ENGINE (SYNTH) --- */
+        /* --- 1. AUDIO ENGINE --- */
         const AudioSys = {
-            ctx: null,
-            nodes: {},
+            ctx: null, nodes: {},
             init() { if(!this.ctx) this.ctx = new (window.AudioContext||window.webkitAudioContext)(); },
             toggle(type, btn) {
                 this.init();
                 if(this.nodes[type]) {
-                    // Stop
                     this.nodes[type].stop(); delete this.nodes[type];
                     btn.classList.remove('active');
                 } else {
-                    // Play
                     btn.classList.add('active');
                     const osc = this.ctx.createOscillator();
                     const g = this.ctx.createGain();
-                    
-                    if(type === 'om') {
-                        // Deep Drone
-                        osc.frequency.value = 136.1; // Om Freq
-                        osc.type = 'sawtooth';
-                        const f = this.ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=200;
-                        g.gain.value = 0.1;
-                        osc.connect(f); f.connect(g);
-                    } else if(type === 'flute') {
-                        osc.frequency.value = 440;
-                        osc.type = 'sine';
-                        g.gain.value = 0.05;
-                        // Simple LFO for vibrato would go here
-                        osc.connect(g);
-                    } else if(type === 'bell') {
-                        // Complex bell
-                        this.playBellOneShot();
-                        btn.classList.remove('active'); // Bell is one-shot
-                        return;
-                    }
-                    
-                    g.connect(this.ctx.destination);
-                    osc.start();
-                    this.nodes[type] = osc;
+                    if(type === 'om') { osc.frequency.value=136.1; osc.type='sawtooth'; g.gain.value=0.1; }
+                    else if(type === 'flute') { osc.frequency.value=440; osc.type='sine'; g.gain.value=0.05; }
+                    else { /* Bell */ this.playBell(); btn.classList.remove('active'); return; }
+                    osc.connect(g); g.connect(this.ctx.destination);
+                    osc.start(); this.nodes[type]=osc;
                 }
             },
-            playBellOneShot() {
+            playBell() {
                 const now = this.ctx.currentTime;
-                [200, 560, 900].forEach((f,i)=>{
-                    const o = this.ctx.createOscillator();
-                    const g = this.ctx.createGain();
-                    o.frequency.value=f;
-                    g.gain.setValueAtTime(0, now);
-                    g.gain.linearRampToValueAtTime(0.3/(i+1), now+0.05);
-                    g.gain.exponentialRampToValueAtTime(0.001, now+4);
+                [200,560,900].forEach((f,i)=>{
+                    const o=this.ctx.createOscillator(); const g=this.ctx.createGain();
+                    o.frequency.value=f; g.gain.setValueAtTime(0,now);
+                    g.gain.linearRampToValueAtTime(0.3/(i+1),now+0.05);
+                    g.gain.exponentialRampToValueAtTime(0.001,now+4);
                     o.connect(g); g.connect(this.ctx.destination);
                     o.start(now); o.stop(now+4);
                 });
             },
-            playWaterSound() {
+            playWater() {
                 this.init();
-                const bSize = 2*this.ctx.sampleRate;
-                const buf = this.ctx.createBuffer(1, bSize, this.ctx.sampleRate);
-                const d = buf.getChannelData(0);
-                for(let i=0;i<bSize;i++) d[i] = (Math.random()*2-1)*0.2;
-                const src = this.ctx.createBufferSource(); src.buffer=buf;
+                const b = this.ctx.createBuffer(1,this.ctx.sampleRate,this.ctx.sampleRate);
+                const d = b.getChannelData(0);
+                for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.2;
+                const s = this.ctx.createBufferSource(); s.buffer=b;
                 const f = this.ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=400;
                 const g = this.ctx.createGain(); g.gain.value=0.5;
-                src.connect(f); f.connect(g); g.connect(this.ctx.destination);
-                src.start(); src.stop(this.ctx.currentTime+2.5);
+                s.connect(f); f.connect(g); g.connect(this.ctx.destination);
+                s.start();
             }
         };
 
-        /* --- 3. VIRTUAL ABHISHEKAM --- */
-        const Abhishekam = {
+        /* --- 2. VISUALS --- */
+        const Visuals = {
             pour() {
                 const s = document.getElementById('stream');
-                if(s.classList.contains('flowing')) return;
-                
-                AudioSys.playWaterSound();
-                s.classList.add('flowing');
-                setTimeout(()=>s.classList.remove('flowing'), 2500);
-                Store.addBlessing(5);
+                if(s.classList.contains('on')) return;
+                AudioSys.playWater();
+                s.classList.add('on'); setTimeout(()=>s.classList.remove('on'), 2500);
             },
-            dropFlower() {
-                const stage = document.querySelector('.altar-stage');
-                const f = document.createElement('div');
-                f.className = 'flower';
-                f.innerHTML = '🌸';
-                f.style.left = (50 + (Math.random()*20 - 10)) + '%';
-                f.style.top = '100px';
-                stage.appendChild(f);
-                setTimeout(()=>f.remove(), 2000);
-                Store.addBlessing(1);
+            light() {
+                const f = document.getElementById('flame');
+                if(!f.classList.contains('lit')) AudioSys.playBell(); // Sound feedback
+                f.classList.toggle('lit');
             }
         };
 
-        /* --- 4. MEDITATION ENGINE --- */
-        const Meditate = {
-            t: null, sec: 0, active: false,
-            toggle() {
-                const btn = document.getElementById('med-btn');
-                const lbl = document.getElementById('breath-state');
-                if(this.active) {
-                    clearInterval(this.t); this.active=false;
-                    btn.innerText="Start"; btn.classList.remove('active');
-                    lbl.innerText = "Ready";
-                    Store.addMins(Math.floor(this.sec/60));
-                } else {
-                    this.active=true; btn.innerText="Stop"; btn.classList.add('active');
-                    this.sec=0;
-                    this.t = setInterval(()=>{
-                        this.sec++;
-                        const m = Math.floor(this.sec/60).toString().padStart(2,'0');
-                        const s = (this.sec%60).toString().padStart(2,'0');
-                        document.getElementById('timer').innerText=`${m}:${s}`;
-                        
-                        // Breath Logic (4-4-4)
-                        const cycle = this.sec % 12;
-                        if(cycle < 4) lbl.innerText="Inhale";
-                        else if(cycle < 8) lbl.innerText="Hold";
-                        else lbl.innerText="Exhale";
-                    }, 1000);
+        /* --- 3. MANTRA FAMILY SYSTEM --- */
+        const MantraSys = {
+            countVal: 0,
+            data: {
+                'shiva': { t: "Om Namah Shivaya", m: "I bow to Shiva, the supreme self." },
+                'ganesh': { t: "Om Gam Ganapataye Namaha", m: "Remover of obstacles, Lord of beginnings." },
+                'parvati': { t: "Om Hrim Shrim Ambikayai Namaha", m: "Salutations to the Divine Mother Energy." },
+                'kartikeya': { t: "Om Saravanabhavaya Namaha", m: "Victory to the commander of divine forces." },
+                'nandi': { t: "Om Nandi-Rudra-Vahanaya Namaha", m: "Salutations to the devoted vehicle of Shiva." }
+            },
+            load(key, btn) {
+                document.querySelectorAll('.idol-card').forEach(c=>c.classList.remove('active'));
+                btn.classList.add('active');
+                const d = this.data[key];
+                document.getElementById('sanskrit').innerText = d.t;
+                document.getElementById('meaning').innerText = d.m;
+                // Vibration feedback
+                if(navigator.vibrate) navigator.vibrate(50);
+            },
+            count() {
+                this.countVal++;
+                document.getElementById('chant-count').innerText = this.countVal;
+                if(navigator.vibrate) navigator.vibrate(20);
+            }
+        };
+
+        /* --- 4. YATRA (MAPS) --- */
+        const Yatra = {
+            search() {
+                const c = document.getElementById('city-in').value;
+                const s = document.getElementById('state-in').value;
+                if(c && s) {
+                    const q = `Shiva Temples in ${c}, ${s}`;
+                    document.getElementById('map-embed').src = `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
+                    // Save location
+                    localStorage.setItem('shiva_loc', JSON.stringify({c,s}));
+                }
+            },
+            init() {
+                const saved = JSON.parse(localStorage.getItem('shiva_loc'));
+                if(saved) {
+                    document.getElementById('city-in').value = saved.c;
+                    document.getElementById('state-in').value = saved.s;
+                    this.search();
                 }
             }
         };
 
-        /* --- 5. MEDIA & ROUTING --- */
-        const Media = {
-            loadSpotify(key) {
-                const ids = { 'chants':'37i9dQZF1DX6aTaZa0K6VA', 'tandav':'37i9dQZF1DX3j96c7g3c6g' };
-                const c = document.getElementById('spotify-container');
-                const f = document.getElementById('spotify-frame');
-                c.classList.remove('hidden');
-                f.src = `https://open.spotify.com/embed/playlist/${ids[key]}?theme=0`;
+        /* --- 5. CALENDAR GENERATOR --- */
+        function initCalendar() {
+            const g = document.getElementById('calendar');
+            const dt = new Date();
+            const today = dt.getDate();
+            // Simple logic for current month display
+            for(let i=1; i<=30; i++) {
+                const d = document.createElement('div');
+                d.className = 'cal-day';
+                d.innerText = i;
+                
+                // Determine Day of week (Mocking current month offset)
+                const check = new Date(dt.getFullYear(), dt.getMonth(), i);
+                if(check.getDay() === 1) d.classList.add('somvar'); // Monday
+                if(i === today) d.classList.add('today');
+                
+                g.appendChild(d);
             }
-        };
+        }
 
+        /* --- 6. ROUTER --- */
         const Router = {
             go(id, btn) {
                 document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -497,8 +415,10 @@
             }
         };
 
-        // Init
-        Store.updateUI();
+        // Initialize
+        initCalendar();
+        Yatra.init();
+
     </script>
 </body>
 </html>
