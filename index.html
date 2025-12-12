@@ -1,499 +1,504 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Play, Pause, RotateCcw, Bell, BookOpen, Moon, Droplets, Award, TrendingUp, ChevronRight } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Shiva Consciousness: Ultimate</title>
+    <meta name="theme-color" content="#0f0c29">
+    <style>
+        /* --- 1. PREMIUM THEME ENGINE --- */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;500;600&display=swap');
 
-const ShivaMeditationApp = () => {
-  const [activeTab, setActiveTab] = useState('home');
-  const [meditationTimer, setMeditationTimer] = useState(0);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [selectedDuration, setSelectedDuration] = useState(15);
-  const [meditationCount, setMeditationCount] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [lastMeditationDate, setLastMeditationDate] = useState(null);
-  const [mantraCount, setMantraCount] = useState(0);
-  const [selectedMantra, setSelectedMantra] = useState('om-namah-shivaya');
-
-  // Sacred dates calculation
-  const getSacredDates = () => {
-    const dates = [];
-    const year = new Date().getFullYear();
-    
-    // Mondays
-    for (let month = 0; month < 12; month++) {
-      for (let day = 1; day <= 31; day++) {
-        const date = new Date(year, month, day);
-        if (date.getMonth() === month && date.getDay() === 1) {
-          dates.push({
-            date: date,
-            type: 'Monday Fast',
-            significance: 'Somvar Vrat - Dedicated to Lord Shiva',
-            color: 'bg-blue-100 text-blue-800'
-          });
+        :root {
+            --bg-dark: #0f0c29;
+            --bg-mid: #302b63;
+            --bg-light: #24243e;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.12);
+            --gold: #FFD700;
+            --gold-glow: rgba(255, 215, 0, 0.4);
+            --accent: #b08bf8;
+            --rudra: #ff5252;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --nav-height: 85px;
         }
-      }
-    }
 
-    // Pradosh Vrat (13th day of lunar fortnight - approximation)
-    const pradoshDates = [
-      new Date(year, 0, 10), new Date(year, 0, 24),
-      new Date(year, 1, 8), new Date(year, 1, 23),
-      new Date(year, 2, 9), new Date(year, 2, 24),
-      new Date(year, 3, 8), new Date(year, 3, 22),
-      new Date(year, 4, 7), new Date(year, 4, 22),
-      new Date(year, 5, 6), new Date(year, 5, 20),
-      new Date(year, 6, 5), new Date(year, 6, 19),
-      new Date(year, 7, 3), new Date(year, 7, 18),
-      new Date(year, 8, 2), new Date(year, 8, 16),
-      new Date(year, 9, 1), new Date(year, 9, 16),
-      new Date(year, 10, 15), new Date(year, 10, 30),
-      new Date(year, 11, 14), new Date(year, 11, 29)
-    ];
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 
-    pradoshDates.forEach(date => {
-      dates.push({
-        date: date,
-        type: 'Pradosh Vrat',
-        significance: 'Twilight worship of Shiva - Highly auspicious',
-        color: 'bg-purple-100 text-purple-800'
-      });
-    });
+        body {
+            margin: 0; background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid));
+            color: var(--text-main); font-family: 'Inter', sans-serif;
+            height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+        }
 
-    // Maha Shivratri
-    dates.push({
-      date: new Date(year, 2, 8),
-      type: 'Maha Shivratri',
-      significance: 'The Great Night of Shiva - Most sacred',
-      color: 'bg-orange-100 text-orange-800'
-    });
+        /* UTILS */
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    return dates.sort((a, b) => a.date - b.date);
-  };
+        /* --- 2. AUDIO DOCK (PERSISTENT) --- */
+        #audio-dock {
+            position: absolute; top: 0; left: 0; width: 100%; height: 60px;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); z-index: 100;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+            border-bottom: var(--glass-border);
+        }
+        .dock-title { font-family: 'Cinzel'; color: var(--gold); font-size: 0.9rem; letter-spacing: 1px; }
+        .audio-controls { display: flex; gap: 15px; }
+        .sound-btn { 
+            background: var(--glass); border: var(--glass-border); color: #fff; 
+            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: 0.3s; font-size: 0.8rem;
+        }
+        .sound-btn.active { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold-glow); }
 
-  const [sacredDates] = useState(getSacredDates());
+        /* --- 3. VIEWPORT --- */
+        #viewport { flex: 1; position: relative; overflow: hidden; margin-top: 60px; } /* Offset for audio dock */
+        
+        .view {
+            position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden;
+            padding: 20px; padding-bottom: 120px; /* Nav space */
+            display: none; opacity: 0; transition: 0.4s;
+        }
+        .view.active { display: block; opacity: 1; }
 
-  useEffect(() => {
-    let interval;
-    if (isTimerRunning) {
-      interval = setInterval(() => {
-        setMeditationTimer(prev => prev + 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isTimerRunning]);
+        /* --- VIEW: SANCTUM (ABHISHEKAM) --- */
+        .altar-stage {
+            display: flex; flex-direction: column; align-items: center; position: relative;
+            height: 80vh; justify-content: center;
+        }
+        
+        /* Interactive Pot */
+        .kalash-wrapper { position: relative; z-index: 20; cursor: pointer; transition: transform 0.3s; }
+        .kalash-wrapper:active { transform: rotate(-5deg); }
+        .rope { width: 2px; height: 60px; background: #555; margin: 0 auto; }
+        .pot-body { 
+            width: 90px; height: 70px; background: linear-gradient(135deg, #cd7f32, #f0e68c); 
+            border-radius: 10px 10px 50px 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative; overflow: hidden;
+        }
+        /* Water Level Indicator */
+        .water-level { 
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 80%; 
+            background: rgba(135, 206, 235, 0.5); transition: height 0.5s; 
+        }
+        
+        /* Physics Stream */
+        .stream-jet {
+            position: absolute; top: 130px; left: 50%; transform: translateX(-50%);
+            width: 6px; height: 0; background: linear-gradient(to bottom, #fff, #a2d9ff);
+            opacity: 0.8; transition: height 0.2s; z-index: 15; box-shadow: 0 0 15px #a2d9ff;
+            border-radius: 4px;
+        }
+        .stream-jet.flowing { height: 200px; }
 
-  const startMeditation = () => {
-    setIsTimerRunning(true);
-  };
+        /* Shivling */
+        .lingam-base {
+            width: 140px; height: 200px; margin-top: 80px; 
+            background: radial-gradient(circle at 30% 30%, #444, #000 90%); 
+            border-radius: 70px 70px 30px 30px; position: relative; z-index: 10;
+            box-shadow: inset 5px 5px 20px rgba(255,255,255,0.1), 0 0 50px rgba(0,0,0,0.8);
+        }
+        .tripundra { position: absolute; top: 60px; width: 100%; text-align: center; opacity: 0.9; }
+        .ash-mark { width: 80px; height: 4px; background: #ddd; margin: 5px auto; border-radius: 50%; box-shadow: 0 0 5px #fff; }
+        .bindi { width: 10px; height: 10px; background: var(--rudra); border-radius: 50%; margin: 6px auto; box-shadow: 0 0 10px var(--rudra); }
 
-  const pauseMeditation = () => {
-    setIsTimerRunning(false);
-  };
+        /* Flower Particles */
+        .flower { position: absolute; font-size: 1.2rem; animation: fall 2s forwards; z-index: 12; pointer-events: none; }
+        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(150px) rotate(360deg); opacity: 0; } }
 
-  const completeMeditation = () => {
-    if (meditationTimer >= 60) {
-      const today = new Date().toDateString();
-      setMeditationCount(prev => prev + 1);
-      
-      if (lastMeditationDate !== today) {
-        const yesterday = new Date(Date.now() - 86400000).toDateString();
-        setStreak(prev => lastMeditationDate === yesterday ? prev + 1 : 1);
-        setLastMeditationDate(today);
-      }
-    }
-    setIsTimerRunning(false);
-    setMeditationTimer(0);
-  };
+        /* Controls */
+        .ritual-controls {
+            display: flex; gap: 15px; margin-top: 40px;
+        }
+        .ritual-btn {
+            background: var(--glass); border: var(--glass-border); color: #fff;
+            padding: 12px 24px; border-radius: 30px; display: flex; align-items: center; gap: 8px;
+            cursor: pointer; transition: 0.3s;
+        }
+        .ritual-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--gold); }
+        .ritual-btn.flower-btn { color: #ffb7b2; }
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+        /* --- VIEW: MEDITATE (AUDIO + TIMER) --- */
+        .timer-circle {
+            width: 250px; height: 250px; border: 2px solid var(--glass-border); border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            margin: 40px auto; position: relative; background: var(--glass); backdrop-filter: blur(10px);
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+        }
+        .time-display { font-size: 3.5rem; font-family: 'Cinzel'; color: var(--gold); }
+        .breath-label { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
+        
+        .timer-controls { display: flex; justify-content: center; gap: 20px; }
+        .med-btn { 
+            background: var(--gold); color: #000; border: none; padding: 15px 40px; 
+            border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase; 
+            letter-spacing: 1px; box-shadow: 0 0 20px var(--gold-glow); transition: 0.3s;
+        }
+        .med-btn.active { background: var(--rudra); color: #fff; box-shadow: 0 0 20px rgba(255,82,82,0.4); }
 
-  const getUpcomingSacredDates = () => {
-    const today = new Date();
-    return sacredDates.filter(d => d.date >= today).slice(0, 5);
-  };
+        /* --- VIEW: MEDIA (SPOTIFY / YOUTUBE) --- */
+        .media-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .media-card {
+            background: var(--glass); border: var(--glass-border); border-radius: 16px;
+            padding: 20px; transition: 0.3s; cursor: pointer; position: relative; overflow: hidden;
+        }
+        .media-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+        .card-icon { font-size: 1.5rem; margin-bottom: 10px; }
+        .card-head { font-family: 'Cinzel'; font-size: 1.1rem; color: var(--gold); margin-bottom: 5px; }
+        .card-sub { font-size: 0.8rem; color: var(--text-muted); }
+        
+        .spotify-embed-container { margin-top: 15px; border-radius: 8px; overflow: hidden; }
 
-  const mantras = {
-    'om-namah-shivaya': {
-      name: 'Om Namah Shivaya',
-      meaning: 'I bow to Shiva - The supreme reality',
-      benefit: 'Purifies mind and awakens consciousness'
-    },
-    'mahamrityunjaya': {
-      name: 'Mahamrityunjaya Mantra',
-      meaning: 'Victory over death and disease',
-      benefit: 'Healing, protection, and spiritual liberation'
-    },
-    'om': {
-      name: 'Om',
-      meaning: 'The primordial sound of universe',
-      benefit: 'Direct connection to cosmic consciousness'
-    },
-    'shiva-panchakshara': {
-      name: 'Na-Ma-Si-Va-Ya',
-      meaning: 'Five-syllable Shiva mantra',
-      benefit: 'Represents five elements and awakens inner Shiva'
-    }
-  };
+        /* --- VIEW: WISDOM --- */
+        .stats-row { display: flex; gap: 15px; margin-bottom: 30px; }
+        .stat-box { 
+            flex: 1; background: var(--glass); padding: 15px; border-radius: 12px; 
+            border: var(--glass-border); text-align: center; 
+        }
+        .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+        .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
 
-  const teachings = [
-    {
-      title: 'The Path of Dhyana',
-      content: 'True meditation is not forcing the mind to be quiet, but finding the stillness that already exists within.',
-      practice: 'Sit comfortably, focus on your breath, and observe thoughts without attachment.'
-    },
-    {
-      title: 'Shiva Consciousness',
-      content: 'Shiva represents pure awareness - the witness consciousness that observes all but is affected by none.',
-      practice: 'Throughout the day, pause and ask "Who is aware of this moment?"'
-    },
-    {
-      title: 'The Third Eye',
-      content: 'The Ajna chakra between the eyebrows is the seat of intuition and higher perception.',
-      practice: 'Gently focus attention on the space between eyebrows during meditation.'
-    },
-    {
-      title: 'Destruction as Creation',
-      content: 'Shiva destroys ignorance and ego to reveal the eternal truth within.',
-      practice: 'Let go of one limiting belief each day through conscious awareness.'
-    }
-  ];
+        .mantra-list { display: flex; flex-direction: column; gap: 10px; }
+        .mantra-item {
+            padding: 15px; background: rgba(0,0,0,0.3); border-left: 3px solid var(--gold);
+            border-radius: 0 8px 8px 0; font-family: 'Cinzel'; color: #fff;
+        }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 shadow-lg">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-3 mb-2">
-            <Moon className="w-8 h-8" />
-            <h1 className="text-3xl font-bold">Shiva Consciousness</h1>
-          </div>
-          <p className="text-indigo-100">Your daily companion for meditation and spiritual growth</p>
+        /* --- NAVIGATION --- */
+        .nav-dock {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: rgba(15, 12, 41, 0.95); backdrop-filter: blur(20px);
+            border-top: var(--glass-border); z-index: 1000;
+            display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; color: var(--text-muted);
+            font-size: 0.7rem; cursor: pointer; transition: 0.3s; gap: 5px;
+        }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+        .nav-item.active { color: var(--gold); }
+        .nav-item.active svg { fill: var(--gold); filter: drop-shadow(0 0 8px var(--gold)); }
+
+    </style>
+</head>
+<body>
+
+    <div id="audio-dock">
+        <div class="dock-title">AMBIENT SOUNDSCAPE</div>
+        <div class="audio-controls">
+            <div class="sound-btn" onclick="AudioSys.toggle('om', this)">🕉️</div>
+            <div class="sound-btn" onclick="AudioSys.toggle('flute', this)">🎋</div>
+            <div class="sound-btn" onclick="AudioSys.toggle('bell', this)">🔔</div>
         </div>
-      </header>
+    </div>
 
-      {/* Stats Bar */}
-      <div className="bg-white border-b border-gray-200 p-4 shadow-sm">
-        <div className="max-w-6xl mx-auto grid grid-cols-3 gap-4 text-center">
-          <div>
-            <div className="flex items-center justify-center gap-2 text-orange-600 mb-1">
-              <Award className="w-5 h-5" />
-              <span className="text-2xl font-bold">{streak}</span>
-            </div>
-            <p className="text-sm text-gray-600">Day Streak</p>
-          </div>
-          <div>
-            <div className="flex items-center justify-center gap-2 text-purple-600 mb-1">
-              <TrendingUp className="w-5 h-5" />
-              <span className="text-2xl font-bold">{meditationCount}</span>
-            </div>
-            <p className="text-sm text-gray-600">Total Sessions</p>
-          </div>
-          <div>
-            <div className="flex items-center justify-center gap-2 text-blue-600 mb-1">
-              <Droplets className="w-5 h-5" />
-              <span className="text-2xl font-bold">{mantraCount}</span>
-            </div>
-            <p className="text-sm text-gray-600">Mantras Chanted</p>
-          </div>
-        </div>
-      </div>
+    <div id="viewport">
+        
+        <div id="view-sanctum" class="view active">
+            <div class="altar-stage">
+                
+                <div class="kalash-wrapper" onclick="Abhishekam.pour()">
+                    <div class="rope"></div>
+                    <div class="pot-body">
+                        <div class="water-level"></div>
+                    </div>
+                    <div id="stream" class="stream-jet"></div>
+                </div>
 
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-6xl mx-auto flex overflow-x-auto">
-          {[
-            { id: 'home', label: 'Meditate', icon: Play },
-            { id: 'calendar', label: 'Sacred Calendar', icon: Calendar },
-            { id: 'mantras', label: 'Mantras', icon: Droplets },
-            { id: 'teachings', label: 'Teachings', icon: BookOpen }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50'
-                  : 'border-transparent text-gray-600 hover:text-indigo-600 hover:bg-gray-50'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </nav>
+                <div class="lingam-base">
+                    <div class="tripundra">
+                        <div class="ash-mark"></div><div class="ash-mark"></div><div class="ash-mark"></div>
+                        <div class="bindi"></div>
+                    </div>
+                </div>
 
-      {/* Content */}
-      <main className="max-w-6xl mx-auto p-6">
-        {/* Meditation Tab */}
-        {activeTab === 'home' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Begin Your Practice</h2>
-              
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-48 h-48 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full mb-4 shadow-inner">
-                  <span className="text-6xl font-bold text-indigo-600">{formatTime(meditationTimer)}</span>
+                <div class="ritual-controls">
+                    <div class="ritual-btn" onclick="Abhishekam.pour()">
+                        💧 Pour Water
+                    </div>
+                    <div class="ritual-btn flower-btn" onclick="Abhishekam.dropFlower()">
+                        🌸 Offer Flower
+                    </div>
                 </div>
                 
-                <div className="flex justify-center gap-4 mt-6">
-                  {!isTimerRunning ? (
-                    <button
-                      onClick={startMeditation}
-                      className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg transition-colors shadow-md"
-                    >
-                      <Play className="w-5 h-5" />
-                      Start Meditation
-                    </button>
-                  ) : (
-                    <>
-                      <button
-                        onClick={pauseMeditation}
-                        className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg transition-colors shadow-md"
-                      >
-                        <Pause className="w-5 h-5" />
-                        Pause
-                      </button>
-                      <button
-                        onClick={completeMeditation}
-                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg transition-colors shadow-md"
-                      >
-                        <RotateCcw className="w-5 h-5" />
-                        Complete
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                {[5, 15, 30].map(duration => (
-                  <button
-                    key={duration}
-                    onClick={() => setSelectedDuration(duration)}
-                    className={`py-3 rounded-lg transition-colors ${
-                      selectedDuration === duration
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                    }`}
-                  >
-                    {duration} min
-                  </button>
-                ))}
-              </div>
-
-              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6 border border-purple-200">
-                <h3 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
-                  <Bell className="w-5 h-5" />
-                  Meditation Guidance
-                </h3>
-                <ul className="text-sm text-purple-800 space-y-1">
-                  <li>• Find a quiet space and sit comfortably</li>
-                  <li>• Keep your spine straight and body relaxed</li>
-                  <li>• Close your eyes and focus on your breath</li>
-                  <li>• Chant your chosen mantra mentally or aloud</li>
-                  <li>• Observe thoughts without judgment, return to breath</li>
-                  <li>• Feel the presence of Shiva consciousness within</li>
-                </ul>
-              </div>
+                <p style="margin-top:20px; color:var(--text-muted); font-size:0.8rem;">Blessings Earned: <span id="bless-count" style="color:var(--gold);">0</span></p>
             </div>
+        </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Upcoming Sacred Days</h3>
-              <div className="space-y-3">
-                {getUpcomingSacredDates().map((event, idx) => (
-                  <div key={idx} className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <Calendar className="w-5 h-5 text-indigo-600 mt-1 flex-shrink-0" />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`px-2 py-1 rounded text-xs font-semibold ${event.color}`}>
-                          {event.type}
-                        </span>
-                        <span className="text-sm text-gray-600">
-                          {event.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-700">{event.significance}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Calendar Tab */}
-        {activeTab === 'calendar' && (
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Sacred Calendar {new Date().getFullYear()}</h2>
+        <div id="view-meditate" class="view">
+            <h2 style="font-family:'Cinzel'; text-align:center; color:var(--gold);">Dhyana Engine</h2>
             
-            <div className="mb-6 flex gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-100 rounded"></div>
-                <span className="text-sm text-gray-600">Monday Fast</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-purple-100 rounded"></div>
-                <span className="text-sm text-gray-600">Pradosh Vrat</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-orange-100 rounded"></div>
-                <span className="text-sm text-gray-600">Maha Shivratri</span>
-              </div>
+            <div class="timer-circle">
+                <div id="timer" class="time-display">00:00</div>
+                <div id="breath-state" class="breath-label">Ready</div>
             </div>
 
-            <div className="space-y-2 max-h-[600px] overflow-y-auto">
-              {sacredDates.map((event, idx) => {
-                const isPast = event.date < new Date();
-                return (
-                  <div
-                    key={idx}
-                    className={`flex items-center justify-between p-4 rounded-lg border ${
-                      isPast ? 'bg-gray-50 border-gray-200 opacity-60' : 'bg-white border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-800">
-                          {event.date.getDate()}
-                        </div>
-                        <div className="text-xs text-gray-600">
-                          {event.date.toLocaleDateString('en-IN', { month: 'short' })}
-                        </div>
-                      </div>
-                      <div>
-                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-1 ${event.color}`}>
-                          {event.type}
-                        </span>
-                        <p className="text-sm text-gray-700">{event.significance}</p>
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {event.date.toLocaleDateString('en-IN', { weekday: 'long' })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Mantras Tab */}
-        {activeTab === 'mantras' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Sacred Mantras</h2>
-              
-              <div className="space-y-4">
-                {Object.entries(mantras).map(([key, mantra]) => (
-                  <div
-                    key={key}
-                    className={`p-6 rounded-lg border-2 cursor-pointer transition-all ${
-                      selectedMantra === key
-                        ? 'border-indigo-600 bg-indigo-50'
-                        : 'border-gray-200 hover:border-indigo-300'
-                    }`}
-                    onClick={() => setSelectedMantra(key)}
-                  >
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">{mantra.name}</h3>
-                    <p className="text-sm text-gray-600 mb-2">
-                      <strong>Meaning:</strong> {mantra.meaning}
-                    </p>
-                    <p className="text-sm text-purple-700">
-                      <strong>Benefit:</strong> {mantra.benefit}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            <div class="timer-controls">
+                <button id="med-btn" class="med-btn" onclick="Meditate.toggle()">Start</button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Mantra Counter</h3>
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full mb-4">
-                  <span className="text-4xl font-bold text-indigo-600">{mantraCount}</span>
+            <div style="margin-top: 40px;">
+                <h3 style="color:var(--text-muted); font-size:0.9rem; text-transform:uppercase;">Guide</h3>
+                <div class="mantra-list">
+                    <div class="mantra-item">Inhale (4s) • Hold (4s) • Exhale (4s)</div>
+                    <div class="mantra-item">Focus on the Third Eye point.</div>
+                    <div class="mantra-item">Listen to the inner silence.</div>
                 </div>
-                <div className="flex gap-3 justify-center">
-                  <button
-                    onClick={() => setMantraCount(prev => prev + 1)}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg transition-colors shadow-md"
-                  >
-                    Count +1
-                  </button>
-                  <button
-                    onClick={() => setMantraCount(prev => prev + 108)}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg transition-colors shadow-md"
-                  >
-                    Add Mala (108)
-                  </button>
-                  <button
-                    onClick={() => setMantraCount(0)}
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors shadow-md"
-                  >
-                    Reset
-                  </button>
+            </div>
+        </div>
+
+        <div id="view-media" class="view">
+            <h2 style="font-family:'Cinzel'; margin-bottom:20px;">Sacred Media</h2>
+            
+            <div class="media-grid">
+                <div class="media-card" onclick="Media.loadSpotify('chants')">
+                    <div class="card-icon">🎵</div>
+                    <div class="card-head">Shiva Chants</div>
+                    <div class="card-sub">Sounds of Isha & Traditional</div>
                 </div>
-                <p className="text-sm text-gray-600 mt-4">Traditional mala contains 108 beads</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Teachings Tab */}
-        {activeTab === 'teachings' && (
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl shadow-lg p-8 mb-6">
-              <h2 className="text-3xl font-bold mb-3">Wisdom of Shiva</h2>
-              <p className="text-indigo-100">Ancient teachings for modern practitioners</p>
-            </div>
-
-            {teachings.map((teaching, idx) => (
-              <div key={idx} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <BookOpen className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-800 mb-3">{teaching.title}</h3>
-                    <p className="text-gray-700 mb-4 leading-relaxed">{teaching.content}</p>
-                    <div className="bg-purple-50 border-l-4 border-purple-600 p-4 rounded">
-                      <p className="text-sm font-semibold text-purple-900 mb-1">Daily Practice:</p>
-                      <p className="text-sm text-purple-800">{teaching.practice}</p>
-                    </div>
-                  </div>
+                
+                <div class="media-card" onclick="Media.loadSpotify('tandav')">
+                    <div class="card-icon">🔥</div>
+                    <div class="card-head">Rudra Tandav</div>
+                    <div class="card-sub">High Energy & Power</div>
                 </div>
-              </div>
-            ))}
 
-            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl shadow-lg p-6 border-2 border-orange-200">
-              <h3 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <Moon className="w-6 h-6 text-orange-600" />
-                The Five Faces of Shiva
-              </h3>
-              <div className="grid md:grid-cols-5 gap-4 text-center">
-                {[
-                  { name: 'Sadyojata', element: 'Earth', aspect: 'Creation' },
-                  { name: 'Vamadeva', element: 'Water', aspect: 'Preservation' },
-                  { name: 'Aghora', element: 'Fire', aspect: 'Destruction' },
-                  { name: 'Tatpurusha', element: 'Air', aspect: 'Concealing' },
-                  { name: 'Ishana', element: 'Ether', aspect: 'Revealing' }
-                ].map((face, idx) => (
-                  <div key={idx} className="p-4 bg-white rounded-lg shadow">
-                    <div className="text-2xl mb-2">🕉️</div>
-                    <h4 className="font-bold text-gray-800 mb-1">{face.name}</h4>
-                    <p className="text-xs text-gray-600">{face.element}</p>
-                    <p className="text-xs text-purple-700 font-semibold">{face.aspect}</p>
-                  </div>
-                ))}
-              </div>
+                <div id="spotify-container" class="spotify-embed-container hidden">
+                    <iframe id="spotify-frame" src="" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                </div>
+
+                <div class="media-card" onclick="window.open('https://www.youtube.com/results?search_query=shiva+tandava+stotram+original', '_blank')">
+                    <div class="card-icon">📺</div>
+                    <div class="card-head">Video Darshan</div>
+                    <div class="card-sub">Watch Tandav Stotram & Pujas</div>
+                </div>
             </div>
-          </div>
-        )}
-      </main>
+        </div>
+
+        <div id="view-wisdom" class="view">
+            <h2 style="font-family:'Cinzel'; margin-bottom:20px;">Your Journey</h2>
+
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-val" id="stat-days">0</div>
+                    <div class="stat-label">Streak Days</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" id="stat-mins">0</div>
+                    <div class="stat-label">Mins Dhyan</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" id="stat-bless">0</div>
+                    <div class="stat-label">Blessings</div>
+                </div>
+            </div>
+
+            <h3 style="color:var(--gold); font-family:'Cinzel'; margin-top:30px;">Mahamantras</h3>
+            <div class="mantra-list">
+                <div class="mantra-item">
+                    <div style="font-size:1.1rem; color:var(--accent);">Om Namah Shivaya</div>
+                    <div style="font-size:0.8rem; color:#aaa;">The Five Syllable Mantra</div>
+                </div>
+                <div class="mantra-item">
+                    <div style="font-size:1.1rem; color:var(--accent);">Maha Mrityunjaya</div>
+                    <div style="font-size:0.8rem; color:#aaa;">For Liberation & Health</div>
+                </div>
+            </div>
+        </div>
+
     </div>
-  );
-};
 
-export default ShivaMeditationApp;
+    <div class="nav-dock">
+        <div class="nav-item active" onclick="Router.go('sanctum', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+            Sanctum
+        </div>
+        <div class="nav-item" onclick="Router.go('meditate', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
+            Meditate
+        </div>
+        <div class="nav-item" onclick="Router.go('media', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/></svg>
+            Media
+        </div>
+        <div class="nav-item" onclick="Router.go('wisdom', this)">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            Wisdom
+        </div>
+    </div>
+
+    <script>
+        /* --- 1. STATE & DATA --- */
+        const Store = {
+            data: {
+                streak: parseInt(localStorage.getItem('shiva_streak')||0),
+                mins: parseInt(localStorage.getItem('shiva_mins')||0),
+                blessings: parseInt(localStorage.getItem('shiva_bless')||0)
+            },
+            save() {
+                localStorage.setItem('shiva_streak', this.data.streak);
+                localStorage.setItem('shiva_mins', this.data.mins);
+                localStorage.setItem('shiva_bless', this.data.blessings);
+                this.updateUI();
+            },
+            addBlessing(n=1) { this.data.blessings+=n; this.save(); },
+            addMins(n) { this.data.mins+=n; this.save(); },
+            updateUI() {
+                document.getElementById('bless-count').innerText = this.data.blessings;
+                document.getElementById('stat-bless').innerText = this.data.blessings;
+                document.getElementById('stat-mins').innerText = this.data.mins;
+                document.getElementById('stat-days').innerText = this.data.streak;
+            }
+        };
+
+        /* --- 2. AUDIO ENGINE (SYNTH) --- */
+        const AudioSys = {
+            ctx: null,
+            nodes: {},
+            init() { if(!this.ctx) this.ctx = new (window.AudioContext||window.webkitAudioContext)(); },
+            toggle(type, btn) {
+                this.init();
+                if(this.nodes[type]) {
+                    // Stop
+                    this.nodes[type].stop(); delete this.nodes[type];
+                    btn.classList.remove('active');
+                } else {
+                    // Play
+                    btn.classList.add('active');
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    
+                    if(type === 'om') {
+                        // Deep Drone
+                        osc.frequency.value = 136.1; // Om Freq
+                        osc.type = 'sawtooth';
+                        const f = this.ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=200;
+                        g.gain.value = 0.1;
+                        osc.connect(f); f.connect(g);
+                    } else if(type === 'flute') {
+                        osc.frequency.value = 440;
+                        osc.type = 'sine';
+                        g.gain.value = 0.05;
+                        // Simple LFO for vibrato would go here
+                        osc.connect(g);
+                    } else if(type === 'bell') {
+                        // Complex bell
+                        this.playBellOneShot();
+                        btn.classList.remove('active'); // Bell is one-shot
+                        return;
+                    }
+                    
+                    g.connect(this.ctx.destination);
+                    osc.start();
+                    this.nodes[type] = osc;
+                }
+            },
+            playBellOneShot() {
+                const now = this.ctx.currentTime;
+                [200, 560, 900].forEach((f,i)=>{
+                    const o = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    o.frequency.value=f;
+                    g.gain.setValueAtTime(0, now);
+                    g.gain.linearRampToValueAtTime(0.3/(i+1), now+0.05);
+                    g.gain.exponentialRampToValueAtTime(0.001, now+4);
+                    o.connect(g); g.connect(this.ctx.destination);
+                    o.start(now); o.stop(now+4);
+                });
+            },
+            playWaterSound() {
+                this.init();
+                const bSize = 2*this.ctx.sampleRate;
+                const buf = this.ctx.createBuffer(1, bSize, this.ctx.sampleRate);
+                const d = buf.getChannelData(0);
+                for(let i=0;i<bSize;i++) d[i] = (Math.random()*2-1)*0.2;
+                const src = this.ctx.createBufferSource(); src.buffer=buf;
+                const f = this.ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=400;
+                const g = this.ctx.createGain(); g.gain.value=0.5;
+                src.connect(f); f.connect(g); g.connect(this.ctx.destination);
+                src.start(); src.stop(this.ctx.currentTime+2.5);
+            }
+        };
+
+        /* --- 3. VIRTUAL ABHISHEKAM --- */
+        const Abhishekam = {
+            pour() {
+                const s = document.getElementById('stream');
+                if(s.classList.contains('flowing')) return;
+                
+                AudioSys.playWaterSound();
+                s.classList.add('flowing');
+                setTimeout(()=>s.classList.remove('flowing'), 2500);
+                Store.addBlessing(5);
+            },
+            dropFlower() {
+                const stage = document.querySelector('.altar-stage');
+                const f = document.createElement('div');
+                f.className = 'flower';
+                f.innerHTML = '🌸';
+                f.style.left = (50 + (Math.random()*20 - 10)) + '%';
+                f.style.top = '100px';
+                stage.appendChild(f);
+                setTimeout(()=>f.remove(), 2000);
+                Store.addBlessing(1);
+            }
+        };
+
+        /* --- 4. MEDITATION ENGINE --- */
+        const Meditate = {
+            t: null, sec: 0, active: false,
+            toggle() {
+                const btn = document.getElementById('med-btn');
+                const lbl = document.getElementById('breath-state');
+                if(this.active) {
+                    clearInterval(this.t); this.active=false;
+                    btn.innerText="Start"; btn.classList.remove('active');
+                    lbl.innerText = "Ready";
+                    Store.addMins(Math.floor(this.sec/60));
+                } else {
+                    this.active=true; btn.innerText="Stop"; btn.classList.add('active');
+                    this.sec=0;
+                    this.t = setInterval(()=>{
+                        this.sec++;
+                        const m = Math.floor(this.sec/60).toString().padStart(2,'0');
+                        const s = (this.sec%60).toString().padStart(2,'0');
+                        document.getElementById('timer').innerText=`${m}:${s}`;
+                        
+                        // Breath Logic (4-4-4)
+                        const cycle = this.sec % 12;
+                        if(cycle < 4) lbl.innerText="Inhale";
+                        else if(cycle < 8) lbl.innerText="Hold";
+                        else lbl.innerText="Exhale";
+                    }, 1000);
+                }
+            }
+        };
+
+        /* --- 5. MEDIA & ROUTING --- */
+        const Media = {
+            loadSpotify(key) {
+                const ids = { 'chants':'37i9dQZF1DX6aTaZa0K6VA', 'tandav':'37i9dQZF1DX3j96c7g3c6g' };
+                const c = document.getElementById('spotify-container');
+                const f = document.getElementById('spotify-frame');
+                c.classList.remove('hidden');
+                f.src = `https://open.spotify.com/embed/playlist/${ids[key]}?theme=0`;
+            }
+        };
+
+        const Router = {
+            go(id, btn) {
+                document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+                document.getElementById('view-'+id).classList.add('active');
+                document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        };
+
+        // Init
+        Store.updateUI();
+    </script>
+</body>
+</html>
