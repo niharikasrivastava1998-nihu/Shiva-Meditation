@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KailashOS</title>
+    <title>KailashOS: Ultimate</title>
     <meta name="theme-color" content="#000000">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Manrope:wght@300;500;700&display=swap');
@@ -28,31 +28,24 @@
             display: flex; flex-direction: column;
         }
 
-        /* --- 1. THE HIDDEN ENTRY (SCROLL LOCK) --- */
+        /* --- 1. THE ENTRY (TAP FIXED) --- */
         #intro-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;
             background: radial-gradient(circle at center, #1a1a1a, #000);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            overflow-y: scroll; /* Allow scroll event */
-            scroll-behavior: smooth;
+            cursor: pointer; transition: opacity 0.8s var(--ease);
         }
         
-        .intro-content {
-            height: 150vh; /* Taller than screen to force scroll */
-            width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding-top: 40vh;
-        }
-
         .trishul-glyph {
             font-size: 6rem; color: var(--gold); filter: drop-shadow(0 0 40px var(--gold));
-            opacity: 1; transition: opacity 0.5s;
+            animation: float 4s infinite ease-in-out;
         }
         
-        .scroll-hint {
-            margin-top: 20px; font-family: var(--font-display); letter-spacing: 4px; font-size: 0.8rem;
-            color: #666; animation: bounce 2s infinite;
+        .tap-hint {
+            margin-top: 30px; font-family: var(--font-display); letter-spacing: 4px; font-size: 0.8rem;
+            color: #666; text-transform: uppercase;
         }
-        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(10px);} }
+        @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
 
         /* --- 2. MAIN OS UI --- */
         #os-layer {
@@ -103,7 +96,7 @@
             transition: transform 0.2s var(--ease), left 0.2s var(--ease), opacity 0.2s;
             cursor: pointer; border: 1px solid #5c3a1e;
         }
-        /* Bead States for Animation */
+        /* Bead States */
         .bead.current { left: 50%; transform: translate(-50%, -50%) scale(1.2); z-index: 10; border-color: var(--gold); }
         .bead.next { left: 80%; transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
         .bead.prev { left: 20%; transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
@@ -160,11 +153,9 @@
 </head>
 <body>
 
-    <div id="intro-layer" onscroll="checkScroll()">
-        <div class="intro-content">
-            <div class="trishul-glyph" id="glyph">Ψ</div>
-            <div class="scroll-hint">SCROLL TO ASCEND</div>
-        </div>
+    <div id="intro-layer" onclick="enterApp()">
+        <div class="trishul-glyph">Ψ</div>
+        <div class="tap-hint">Tap to Enter</div>
     </div>
 
     <div id="os-layer">
@@ -237,21 +228,14 @@
     </div>
 
     <script>
-        /* --- 1. SCROLL ENTRY LOGIC --- */
-        function checkScroll() {
+        /* --- 1. ENTER LOGIC (TAP) --- */
+        function enterApp() {
             const el = document.getElementById('intro-layer');
-            const glyph = document.getElementById('glyph');
-            const scroll = el.scrollTop;
-            
-            // Fade glyph on scroll
-            glyph.style.opacity = 1 - (scroll / 300);
-            
-            if (scroll > 200) {
-                // Unlock App
-                el.style.opacity = 0;
-                el.style.pointerEvents = 'none';
+            el.style.opacity = 0;
+            setTimeout(() => {
+                el.style.display = 'none';
                 document.getElementById('os-layer').classList.add('active');
-            }
+            }, 800);
         }
 
         /* --- 2. VIRTUAL MALA ENGINE (PHYSICS) --- */
@@ -280,7 +264,7 @@
                 document.getElementById('jap-count').innerText = this.count;
                 
                 // 2. Haptics (Vibrate Phone)
-                if(navigator.vibrate) navigator.vibrate(15); // Short, sharp click feel
+                if(navigator.vibrate) navigator.vibrate(15); 
 
                 // 3. Animation Sequence
                 const prev = document.getElementById('b-prev');
@@ -289,22 +273,19 @@
                 const ent = document.getElementById('b-ent');
 
                 // Shift classes
-                prev.className = 'bead exit'; // Old prev leaves
-                curr.className = 'bead prev'; // Current becomes prev
-                next.className = 'bead current'; // Next becomes current
-                ent.className = 'bead next'; // Entering becomes next
+                prev.className = 'bead exit'; 
+                curr.className = 'bead prev'; 
+                next.className = 'bead current'; 
+                ent.className = 'bead next'; 
 
-                // Reset DOM after animation (200ms) to allow infinite loop
+                // Reset DOM after animation
                 setTimeout(() => {
-                    // Create a new "Entering" bead to replace the one that moved up
                     const newBead = document.createElement('div');
                     newBead.className = 'bead enter';
                     newBead.id = 'b-temp'; 
                     document.querySelector('.bead-string-container').appendChild(newBead);
 
-                    // Recycle elements (Reset IDs)
-                    // In a real React app we'd use state, here we cheat with DOM swapping for performance
-                    prev.remove(); // Remove the exited one
+                    prev.remove(); 
                     curr.id = 'b-prev';
                     next.id = 'b-curr';
                     ent.id = 'b-next';
@@ -340,13 +321,8 @@
                 for(let d=1; d<=daysInMonth; d++) {
                     const dateObj = new Date(year, mIndex, d);
                     let classes = 'cal-day';
-                    
-                    // Somvar Check (Monday = 1)
-                    if(dateObj.getDay() === 1) classes += ' somvar';
-                    
-                    // Today Check
+                    if(dateObj.getDay() === 1) classes += ' somvar'; // Monday check
                     if(d === today.getDate() && mIndex === today.getMonth() && year === today.getFullYear()) classes += ' today';
-                    
                     html += `<div class="${classes}">${d}</div>`;
                 }
                 
