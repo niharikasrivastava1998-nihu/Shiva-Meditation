@@ -3,22 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ShivaOS: Ananda</title>
-    <meta name="theme-color" content="#0a0a12">
+    <title>ShivaOS: Omni-X</title>
+    <meta name="theme-color" content="#000000">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Manrope:wght@300;500;700&display=swap');
 
         :root {
-            --bg: #0a0a12;
-            --glass: rgba(255, 255, 255, 0.08);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-            --primary: #8A2BE2; /* Deep Purple */
-            --accent: #00E5FF; /* Cyan */
+            --bg: #000000;
+            --glass: rgba(20, 20, 25, 0.95);
             --gold: #FFD700;
-            --success: #00ff9d;
-            --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-fire: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-water: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            --rudra: #ff4444;
+            --chakra: #00e5ff;
+            --text: #ffffff;
             --nav-height: 85px;
             --safe-bottom: env(safe-area-inset-bottom);
         }
@@ -26,377 +22,278 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
         body {
-            margin: 0; background: var(--bg); color: #fff;
-            font-family: 'Outfit', sans-serif; height: 100vh; overflow: hidden;
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: 'Manrope', sans-serif; height: 100vh; overflow: hidden;
             display: flex; flex-direction: column;
-            background-image: radial-gradient(circle at 50% -20%, #2a0845, #000000);
+            background-image: radial-gradient(circle at 50% 0%, #1a1a2e, #000);
         }
 
-        /* --- 1. SPLASH SCREEN --- */
-        #splash {
-            position: fixed; inset: 0; background: #000; z-index: 99999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1s ease;
-        }
-        .splash-om {
-            font-size: 6rem; background: var(--gradient-fire); -webkit-background-clip: text; color: transparent;
-            animation: float 3s ease-in-out infinite, glow 2s ease-in-out infinite alternate;
-        }
-        .splash-text {
-            margin-top: 20px; font-family: 'Cinzel'; letter-spacing: 5px; color: #fff; opacity: 0;
-            animation: fadeInUp 1s ease forwards 0.5s;
-        }
-        .loader-dots span {
-            display: inline-block; width: 8px; height: 8px; background: var(--accent); border-radius: 50%;
-            margin: 0 4px; animation: bounce 0.6s infinite alternate;
-        }
-        .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+        /* --- UI UTILS --- */
+        .card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(15px); }
+        .card-h { font-family: 'Cinzel'; color: var(--gold); font-size: 1.1rem; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        .btn-gold { width:100%; background: var(--gold); color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: transform 0.1s; }
+        .btn-gold:active { transform: scale(0.95); }
+        .btn-glass { padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; font-size: 0.8rem; cursor: pointer; color: #ccc; }
+        .input-field { width: 100%; padding: 12px; background: #222; border: 1px solid #333; color: #fff; border-radius: 10px; }
 
-        /* --- 2. HEADER & SOUND TOGGLE --- */
-        #header {
-            position: fixed; top: 0; width: 100%; height: 60px; z-index: 100;
-            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
-            background: rgba(10,10,15,0.8); backdrop-filter: blur(20px); border-bottom: var(--glass-border);
-        }
-        .logo { font-family: 'Cinzel'; font-weight: 700; background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; color: transparent; }
-        .snd-toggle {
-            width: 40px; height: 40px; border-radius: 50%; background: var(--glass);
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s;
-        }
-        .snd-toggle.active { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); }
+        /* --- GATE --- */
+        #gate { position: fixed; inset: 0; z-index: 9999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.8s; }
+        .mandala { width: 200px; height: 200px; border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: spin 40s linear infinite; cursor: pointer; }
+        .gate-icon { font-size: 5rem; animation: breathe 3s infinite; }
+        @keyframes spin { 100%{transform:rotate(360deg);} }
+        @keyframes breathe { 50%{transform:scale(1.1); opacity:0.7;} }
 
-        /* --- 3. UI COMPONENTS --- */
-        #viewport { flex: 1; overflow-y: auto; padding: 80px 20px 100px 20px; scroll-behavior: smooth; }
+        /* --- VIEWPORT --- */
+        #viewport { flex: 1; position: relative; overflow: hidden; opacity: 0; transition: opacity 1s; }
+        .view { position: absolute; inset: 0; overflow-y: auto; padding: 20px; padding-bottom: 120px; display: none; opacity: 0; transform: scale(0.95); transition: 0.3s; }
+        .view.active { display: block; opacity: 1; transform: scale(1); }
+
+        /* --- LEVEL UP MODAL --- */
+        #levelup { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .lvl-badge { font-size: 5rem; animation: breathe 1s infinite; }
+
+        /* --- MODULE STYLES --- */
+        /* Home */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .cal-day { padding: 10px 0; background: #111; border-radius: 8px; color: #888; font-size: 0.8rem; }
+        .cal-day.today { background: var(--gold); color: #000; font-weight: bold; }
         
-        .card {
-            background: var(--glass); border: var(--glass-border); border-radius: 24px; padding: 20px;
-            margin-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; position: relative; overflow: hidden;
-        }
-        .card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.3); }
-        .card-h { font-family: 'Cinzel'; font-size: 1.1rem; color: #fff; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .btn-grad {
-            width: 100%; padding: 15px; border: none; border-radius: 16px; font-weight: bold; color: #fff;
-            background: var(--gradient-main); cursor: pointer; transition: 0.2s; position: relative; overflow: hidden;
-        }
-        .btn-grad:active { transform: scale(0.95); filter: brightness(1.2); }
-        .btn-grad::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            animation: shine 3s infinite;
-        }
+        /* Sanctum */
+        .altar { height: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .kalash { width: 80px; height: 60px; background: linear-gradient(135deg, #b87333, #e6a36c); border-radius: 10px 10px 40px 40px; z-index: 20; cursor: pointer; transition: 0.2s; }
+        .kalash:active { transform: rotate(-10deg); }
+        .stream { position: absolute; top: 120px; width: 6px; height: 0; background: linear-gradient(to bottom, #fff, #87ceeb); transition: 0.2s; z-index: 15; opacity: 0.8; }
+        .stream.on { height: 160px; }
+        .lingam { width: 100px; height: 160px; margin-top: 80px; background: radial-gradient(circle at 30% 30%, #444, #000); border-radius: 50px 50px 30px 30px; position: relative; z-index: 10; }
+        .diya { position: absolute; bottom: 20px; cursor: pointer; z-index: 25; }
+        .flame { position: absolute; top: -25px; left: 28px; width: 14px; height: 28px; background: radial-gradient(gold, red); border-radius: 50% 50% 20px 20px; filter: blur(2px); opacity: 0; transition: 0.3s; }
+        .flame.lit { opacity: 1; animation: breathe 0.1s infinite; }
 
-        /* --- 4. PARTICLES --- */
-        .particle {
-            position: fixed; width: 8px; height: 8px; border-radius: 50%; pointer-events: none; z-index: 9999;
-            animation: fall 1s ease-in forwards;
-        }
+        /* Gamification */
+        .xp-bar { height: 6px; background: #333; border-radius: 3px; overflow: hidden; margin-top: 5px; }
+        .xp-fill { height: 100%; background: var(--gold); width: 0%; transition: width 0.5s; }
 
-        /* --- ANIMATIONS --- */
-        @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
-        @keyframes glow { from{text-shadow:0 0 10px var(--primary);} to{text-shadow:0 0 30px var(--accent);} }
-        @keyframes fadeInUp { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
-        @keyframes bounce { to{transform:translateY(-10px);} }
-        @keyframes shine { 0%{left:-100%;} 20%{left:100%;} 100%{left:100%;} }
-        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
-        @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(255,215,0,0.7);} 70%{box-shadow:0 0 0 20px rgba(255,215,0,0);} 100%{box-shadow:0 0 0 0 rgba(255,215,0,0);} }
+        /* Media */
+        .jyoti-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .jyoti-card { background: #151515; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px solid #333; }
 
-        /* --- MODULE: HOME --- */
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .stat-box {
-            background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; text-align: center;
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
-        }
-        .stat-box:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); }
-        .stat-val { font-size: 2rem; font-weight: 700; background: var(--gradient-water); -webkit-background-clip: text; color: transparent; }
-
-        /* --- MODULE: SANCTUM --- */
-        .altar-3d { height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .lingam { 
-            width: 100px; height: 140px; background: radial-gradient(circle at 30% 30%, #444, #000); 
-            border-radius: 50px 50px 30px 30px; box-shadow: 0 20px 50px #000; position: relative; z-index: 5;
-        }
-        .tripundra { position: absolute; top: 40px; width: 100%; text-align: center; opacity: 0.8; }
-        .om-glow { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); 
-            font-size: 8rem; opacity: 0.1; color: var(--gold); pointer-events: none; transition: 0.3s;
-        }
-        .pouring .om-glow { opacity: 0.6; text-shadow: 0 0 50px var(--accent); }
-        
-        /* --- MODULE: AHARA --- */
-        .diet-toggle { display: flex; background: #222; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
-        .dt-btn { flex: 1; padding: 12px; text-align: center; border-radius: 8px; font-size: 0.9rem; cursor: pointer; transition: 0.3s; color: #888; }
-        .dt-btn.active { background: var(--success); color: #000; font-weight: bold; box-shadow: 0 5px 15px rgba(0,255,157,0.3); }
-
-        /* --- DOCK --- */
-        #dock {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height);
-            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); border-top: var(--glass-border);
-            z-index: 1000; padding-bottom: var(--safe-bottom);
-            overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none;
-        }
-        .dock-content { display: flex; padding: 0 15px; height: 100%; align-items: center; gap: 10px; }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-width: 70px; height: 60px; color: #666; border-radius: 12px; transition: 0.3s; font-size: 0.7rem; font-weight: 600;
-        }
-        .nav-icon { font-size: 1.5rem; margin-bottom: 4px; transition: 0.3s; }
-        .nav-item.active { background: rgba(255,255,255,0.1); color: #fff; }
-        .nav-item.active .nav-icon { transform: translateY(-3px); color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+        /* DOCK */
+        #dock-container { position: fixed; bottom: 0; width: 100%; height: var(--nav-height); background: rgba(10,10,12,0.98); border-top: 1px solid #333; z-index: 1000; overflow-x: auto; padding-bottom: var(--safe-bottom); }
+        .dock-scroll { display: flex; padding: 0 10px; height: 100%; align-items: center; gap: 10px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; font-size: 0.6rem; min-width: 65px; height: 60px; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        .nav-item.active { background: rgba(255,255,255,0.1); color: var(--gold); }
+        .nav-icon { font-size: 1.5rem; margin-bottom: 3px; }
 
     </style>
 </head>
 <body>
 
-    <div id="splash">
-        <div class="splash-om">🕉️</div>
-        <div class="splash-text">SHIVA SADHANA</div>
-        <div class="loader-dots" style="margin-top: 20px;"><span></span><span></span><span></span></div>
+    <div id="gate" onclick="App.enter()">
+        <div class="mandala"><div class="gate-icon">🕉️</div></div>
+        <p style="color:#888; margin-top:30px; letter-spacing:4px; font-size:0.8rem;">TAP TO ENTER</p>
     </div>
 
-    <div id="header">
-        <div class="logo">MAHA KAILASH</div>
-        <div class="snd-toggle" onclick="Sound.toggle()" id="mute-btn">🔇</div>
+    <div id="levelup" onclick="this.style.display='none'">
+        <div class="lvl-badge">🏆</div>
+        <h2 style="font-family:'Cinzel'; color:var(--gold);">LEVEL UP!</h2>
+        <p id="lvl-msg">You are now a Sadhaka</p>
+        <p style="color:#888; font-size:0.8rem;">Tap to continue</p>
     </div>
 
     <div id="viewport">
-        <div id="view-container"></div>
+
+        <div id="view-home" class="view active">
+            <div class="card">
+                <div class="card-h">
+                    <span>Level: <span id="user-lvl" style="color:var(--gold);">Seeker</span></span>
+                    <span id="user-karma">0 KP</span>
+                </div>
+                <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+                <p style="font-size:0.7rem; color:#666; text-align:right; margin-top:5px;">Next Level in <span id="xp-left">100</span> KP</p>
+            </div>
+            <div class="card">
+                <div class="card-h">Panchang</div>
+                <div class="cal-grid" id="calendar"></div>
+                <button class="btn-gold" onclick="Util.alarm()">⏰ Set Alarm</button>
+            </div>
+        </div>
+
+        <div id="view-sanctum" class="view">
+            <div class="card" style="text-align:center;">
+                <div class="card-h" style="justify-content:center;">Altar</div>
+                <div class="altar">
+                    <div class="kalash" onclick="Puja.pour()"></div><div id="stream" class="stream"></div>
+                    <div class="lingam"><div class="diya" onclick="Puja.light()"><div id="flame" class="flame"></div><svg width="70" viewBox="0 0 100 50"><path d="M0,20 Q50,60 100,20 L100,25 Q50,70 0,25 Z" fill="#5c3a1e"/></svg></div></div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-gold" onclick="Puja.pour()">Jal (+5 KP)</button>
+                    <button class="btn-glass" onclick="Audio.playBell()">🔔 Bell</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-ahara" class="view">
+            <div class="card">
+                <div class="card-h">Meal Planner <button class="btn-glass" onclick="Ahara.toggle()">Toggle Fast</button></div>
+                <div id="diet-list"></div>
+            </div>
+        </div>
+
+        <div id="view-sadhana" class="view">
+            <div class="card" style="text-align:center;">
+                <div class="card-h" style="justify-content:center;">Japa Mala</div>
+                <div style="font-size:3rem; color:var(--gold);" id="jap-count">0</div>
+                <button class="btn-gold" onclick="Japa.count()">Chant (+1 KP)</button>
+            </div>
+            <div class="card" style="text-align:center;">
+                <div class="card-h" style="justify-content:center;">Recorder</div>
+                <button class="btn-glass" onclick="alert('Recording Started...')">🎙️ Start</button>
+            </div>
+        </div>
+
+        <div id="view-media" class="view">
+            <div class="card">
+                <div class="card-h">Darshan</div>
+                <div class="jyoti-grid" id="media-grid"></div>
+            </div>
+            <div class="card"><div class="card-h">Spotify</div><a href="https://open.spotify.com/playlist/37i9dQZF1DX6aTaZa0K6VA" class="btn-gold" target="_blank" style="display:block; text-align:center; text-decoration:none;">Open Chants</a></div>
+        </div>
+
+        <div id="view-parivar" class="view"><div class="card"><div class="card-h">Family</div><div id="fam-list"></div></div></div>
+
+        <div id="view-gyan" class="view"><div class="card"><div class="card-h">AI Guide</div><input class="input-field" placeholder="I feel..."><button class="btn-gold" onclick="alert('Look Within.')">Ask</button></div></div>
+
+        <div id="view-yantra" class="view"><div class="card" style="text-align:center;"><div class="card-h" style="justify-content:center;">Trataka</div><div style="width:150px; height:150px; background:radial-gradient(circle,#333,#000); border-radius:50%; margin:0 auto; border:2px solid var(--gold);"></div><p style="margin-top:20px;">Gaze for 5 mins (+20 KP)</p></div></div>
+
+        <div id="view-sankalpa" class="view"><div class="card"><div class="card-h">Vows</div><input id="vow-in" class="input-field" placeholder="My vow..."><button class="btn-gold" onclick="Game.addVow()">Commit</button><div id="vow-list" style="margin-top:10px;"></div></div></div>
+
+        <div id="view-prasad" class="view"><div class="card"><div class="card-h">Stats</div><div style="text-align:center;"><h1 id="stat-total" style="color:var(--gold);">0</h1><p>Total Karma</p></div></div></div>
+
+        <div id="view-yatra" class="view"><div class="card"><div class="card-h">Maps</div><input id="city-in" class="input-field" placeholder="City"><button class="btn-gold" onclick="Util.map()">Search</button><iframe id="gmap" width="100%" height="250" style="border:0; margin-top:10px; border-radius:10px; filter:invert(90%);"></iframe></div></div>
+
+        <div id="view-mantra" class="view"><div class="card"><div class="card-h">Library</div><p>Om Namah Shivaya<br>Maha Mrityunjaya</p></div></div>
+
+        <div id="view-chakra" class="view"><div class="card"><div class="card-h">Healing</div><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"><button class="btn-glass">Root</button><button class="btn-glass">Heart</button></div></div></div>
+
+        <div id="view-festivals" class="view"><div class="card"><div class="card-h">Utsav</div><p>Maha Shivratri: Feb 26</p></div></div>
+
+        <div id="view-community" class="view"><div class="card"><div class="card-h">Sangha</div><p style="text-align:center; font-size:2rem;">1,420 Active</p></div></div>
+
+        <div id="view-ascent" class="view"><div class="card"><div class="card-h">The Path</div><p>1. Yama<br>2. Niyama<br>3. Asana</p></div></div>
+
+        <div id="view-daan" class="view"><div class="card"><div class="card-h">Seva Tracker</div><input class="input-field" placeholder="Good deed today..."><button class="btn-gold" onclick="Game.addPoints(50)">Log Seva (+50 KP)</button></div></div>
+
+        <div id="view-dreams" class="view"><div class="card"><div class="card-h">Dream Journal</div><textarea class="input-field" rows="5" placeholder="I dreamt of..."></textarea><button class="btn-gold">Save Entry</button></div></div>
+
+        <div id="view-rudraksha" class="view"><div class="card"><div class="card-h">Bead Guide</div><p>1 Mukhi: Shiva<br>5 Mukhi: Kaalagni</p></div></div>
+
+        <div id="view-settings" class="view"><div class="card"><div class="card-h">Settings</div><p>Audio: ON<br>Theme: Dark</p><button class="btn-glass" onclick="localStorage.clear(); location.reload();">Reset App Data</button></div></div>
+
     </div>
 
-    <div id="dock">
-        <div class="dock-content" id="dock-items">
-            </div>
-    </div>
+    <div id="dock-container"><div class="dock-scroll" id="dock-items"></div></div>
 
     <script>
-        /* --- 🔊 ADVANCED AUDIO ENGINE (Web Audio API) --- */
-        const Sound = {
-            ctx: null,
-            muted: true,
-            init() { 
-                if(!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    this.master = this.ctx.createGain();
-                    this.master.connect(this.ctx.destination);
-                }
-            },
-            toggle() {
-                this.init();
-                this.muted = !this.muted;
-                const btn = document.getElementById('mute-btn');
-                btn.innerText = this.muted ? "🔇" : "🔊";
-                btn.classList.toggle('active');
-                if(!this.muted) {
-                    this.ctx.resume();
-                    this.play('click');
-                }
-            },
-            play(type) {
-                if(this.muted || !this.ctx) return;
-                const t = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const g = this.ctx.createGain();
-                osc.connect(g); g.connect(this.master);
-
-                if(type === 'click') {
-                    osc.frequency.setValueAtTime(800, t);
-                    osc.frequency.exponentialRampToValueAtTime(100, t + 0.1);
-                    g.gain.setValueAtTime(0.1, t);
-                    g.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
-                    osc.start(t); osc.stop(t + 0.1);
-                } 
-                else if (type === 'karma') { // 528 Hz Healing
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(528, t);
-                    g.gain.setValueAtTime(0, t);
-                    g.gain.linearRampToValueAtTime(0.3, t + 0.1);
-                    g.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
-                    osc.start(t); osc.stop(t + 1.5);
-                }
-                else if (type === 'om') { // 136.1 Hz
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(136.1, t);
-                    g.gain.setValueAtTime(0, t);
-                    g.gain.linearRampToValueAtTime(0.4, t + 1);
-                    g.gain.linearRampToValueAtTime(0, t + 4);
-                    osc.start(t); osc.stop(t + 4);
-                }
-                else if (type === 'water') {
-                    // White noise buffer
-                    const bufferSize = this.ctx.sampleRate * 2;
-                    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-                    
-                    const noise = this.ctx.createBufferSource();
-                    noise.buffer = buffer;
-                    const filter = this.ctx.createBiquadFilter();
-                    filter.type = 'lowpass'; filter.frequency.value = 400;
-                    noise.connect(filter); filter.connect(g);
-                    g.gain.setValueAtTime(0.5, t);
-                    g.gain.exponentialRampToValueAtTime(0.01, t + 2);
-                    noise.start(t); noise.stop(t + 2);
-                    return; // Return early as osc is not used
-                }
-            }
-        };
-
-        /* --- ✨ VISUAL FX --- */
-        const FX = {
-            confetti() {
-                for(let i=0; i<30; i++) {
-                    const p = document.createElement('div');
-                    p.className = 'particle';
-                    p.style.left = Math.random() * 100 + 'vw';
-                    p.style.top = '-10px';
-                    p.style.background = `hsl(${Math.random()*360}, 100%, 50%)`;
-                    document.body.appendChild(p);
-                    setTimeout(()=>p.remove(), 1000);
-                }
-            }
-        };
-
-        /* --- 📱 APP LOGIC --- */
-        const App = {
-            points: 0,
+        /* --- GAME ENGINE --- */
+        const Game = {
+            d: JSON.parse(localStorage.getItem('shiva_v37')) || { xp:0, lvl:1, vows:[] },
+            levels: ['Seeker', 'Sadhaka', 'Yogi', 'Rishi', 'Siddha'],
+            save() { localStorage.setItem('shiva_v37', JSON.stringify(this.d)); this.ui(); },
             
-            init() {
-                // Remove Splash
-                setTimeout(() => {
-                    document.getElementById('splash').style.opacity = 0;
-                    setTimeout(() => document.getElementById('splash').style.display = 'none', 1000);
-                }, 2500);
-
-                this.renderDock();
-                this.route('home');
-            },
-
             addPoints(n) {
-                this.points += n;
-                Sound.play('karma');
-                if(n >= 10) FX.confetti();
-                // Update specific UI if visible
-                const el = document.getElementById('karma-disp');
-                if(el) el.innerText = this.points;
-            },
-
-            route(id) {
-                Sound.play('click');
-                const container = document.getElementById('view-container');
-                container.innerHTML = Views[id]();
-                
-                // Active Dock State
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                const activeNav = document.getElementById(`nav-${id}`);
-                if(activeNav) activeNav.classList.add('active');
-
-                // Init Logic for specific views
-                if(id === 'home') this.initCal();
-            },
-
-            renderDock() {
-                const tabs = [
-                    {id:'home', i:'📅', n:'Home'}, {id:'sanctum', i:'🕉️', n:'Puja'},
-                    {id:'ahara', i:'🥗', n:'Diet'}, {id:'sadhana', i:'🧘', n:'Tools'},
-                    {id:'media', i:'🎵', n:'Media'}, {id:'prasad', i:'🏆', n:'Stats'}
-                ];
-                const d = document.getElementById('dock-items');
-                d.innerHTML = tabs.map(t => `
-                    <div class="nav-item" id="nav-${t.id}" onclick="App.route('${t.id}')">
-                        <div class="nav-icon">${t.i}</div><div>${t.n}</div>
-                    </div>
-                `).join('');
-            },
-
-            // Calendar Logic
-            initCal() {
-                const g = document.getElementById('cal-grid');
-                if(!g) return;
-                g.innerHTML = '';
-                for(let i=1; i<=30; i++) {
-                    const isMon = new Date(2025, 0, i).getDay() === 1;
-                    g.innerHTML += `<div class="cal-day" style="padding:10px; background:${isMon?'rgba(0,255,157,0.1)':'rgba(255,255,255,0.05)'}; border:${isMon?'1px solid var(--success)':'none'}; border-radius:8px; text-align:center;">${i}</div>`;
+                this.d.xp += n;
+                // Level Up Logic
+                const nextLvl = this.d.lvl * 100;
+                if(this.d.xp >= nextLvl && this.d.lvl < 5) {
+                    this.d.lvl++;
+                    document.getElementById('lvl-msg').innerText = "You are now a " + this.levels[this.d.lvl-1];
+                    document.getElementById('levelup').style.display = 'flex';
+                    Audio.playBell(); // Celebration sound
                 }
+                this.save();
+            },
+            
+            addVow() {
+                const v = document.getElementById('vow-in').value;
+                if(v) { this.d.vows.push(v); this.save(); document.getElementById('vow-in').value=''; }
+            },
+
+            ui() {
+                document.getElementById('user-karma').innerText = this.d.xp + " KP";
+                document.getElementById('user-lvl').innerText = this.levels[this.d.lvl-1];
+                document.getElementById('xp-left').innerText = (this.d.lvl*100) - this.d.xp;
+                document.getElementById('xp-fill').style.width = (this.d.xp / (this.d.lvl*100))*100 + "%";
+                document.getElementById('stat-total').innerText = this.d.xp;
+                
+                const vl = document.getElementById('vow-list'); vl.innerHTML="";
+                this.d.vows.forEach(v => vl.innerHTML += `<div style="padding:10px; background:#111; margin-bottom:5px; border-radius:8px;">${v}</div>`);
             }
         };
 
-        /* --- 📄 VIEW TEMPLATES --- */
-        const Views = {
-            home: () => `
-                <div class="card" style="background:var(--gradient-main);">
-                    <div class="card-h">Pranam, Devotee</div>
-                    <div class="stat-grid">
-                        <div class="stat-box"><div class="stat-val" id="karma-disp">${App.points}</div><div style="font-size:0.8rem; opacity:0.8;">Karma Pts</div></div>
-                        <div class="stat-box"><div class="stat-val">3</div><div style="font-size:0.8rem; opacity:0.8;">Day Streak</div></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-h">Panchang Calendar</div>
-                    <div id="cal-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:5px;"></div>
-                    <button class="btn-grad" style="margin-top:15px;" onclick="alert('Alarm Set!'); Sound.play('success');">⏰ Set Puja Alarm</button>
-                </div>
-            `,
-            sanctum: () => `
-                <div class="card" style="text-align:center; height:70vh; display:flex; flex-direction:column; justify-content:center;">
-                    <div class="card-h" style="justify-content:center;">Abhishekam</div>
-                    <div class="altar-3d" id="altar-area">
-                        <div class="om-glow">🕉️</div>
-                        <div class="lingam"><div class="tripundra" style="color:rgba(255,255,255,0.8); font-size:2rem;">•••</div></div>
-                    </div>
-                    <button class="btn-grad" onclick="
-                        Sound.play('water'); 
-                        document.getElementById('altar-area').classList.add('pouring');
-                        App.addPoints(5);
-                        setTimeout(()=>document.getElementById('altar-area').classList.remove('pouring'), 2000);
-                    ">💧 Pour Gangajal</button>
-                </div>
-            `,
-            ahara: () => `
-                <div class="card">
-                    <div class="card-h">Meal Planner</div>
-                    <div class="diet-toggle">
-                        <div class="dt-btn active" onclick="this.classList.add('active'); this.nextElementSibling.classList.remove('active'); document.getElementById('menu').innerHTML='Fruits, Milk, Sabudana'; Sound.play('click');">Satvik</div>
-                        <div class="dt-btn" onclick="this.classList.add('active'); this.previousElementSibling.classList.remove('active'); document.getElementById('menu').innerHTML='Water, Bilva, Air'; Sound.play('click');">Nirjala</div>
-                    </div>
-                    <div id="menu" style="font-size:1.2rem; text-align:center; padding:20px; border:1px dashed rgba(255,255,255,0.2); border-radius:12px;">Fruits, Milk, Sabudana</div>
-                </div>
-            `,
-            sadhana: () => `
-                <div class="card" style="text-align:center;">
-                    <div class="card-h" style="justify-content:center;">Meditation</div>
-                    <div style="font-size:4rem; margin:20px 0; animation:glow 3s infinite;">🕉️</div>
-                    <button class="btn-grad" onclick="Sound.play('om'); App.addPoints(10);">Start Dhyan (136.1Hz)</button>
-                </div>
-                <div class="card">
-                    <div class="card-h">Recording</div>
-                    <div class="loader-dots" style="text-align:center; opacity:0.5;"><span></span><span></span><span></span><span></span></div>
-                    <button class="btn-grad" style="background:#333; margin-top:15px;" onclick="this.style.background='red'; this.innerText='Recording...';">🎙️ Record Chant</button>
-                </div>
-            `,
-            media: () => `
-                <div class="card" style="background:linear-gradient(45deg, #1db954, #191414);">
-                    <div class="card-h">Spotify Playlist</div>
-                    <button class="btn-grad" style="background:#000;" onclick="window.open('http://spotify.com')">🎧 Open Chants</button>
-                </div>
-                <div class="card">
-                    <div class="card-h">Live Darshan</div>
-                    <div style="aspect-ratio:16/9; background:#000; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#888;">Video Feed Loading...</div>
-                </div>
-            `,
-            prasad: () => `
-                <div class="card">
-                    <div class="card-h">Your Journey</div>
-                    <div style="text-align:center;">
-                        <div style="font-size:4rem; font-weight:bold; color:var(--gold); text-shadow:0 0 20px var(--gold);">${App.points}</div>
-                        <div>Total Karma Points</div>
-                    </div>
-                </div>
-            `
+        /* --- CORE NAV --- */
+        const App = {
+            enter() {
+                document.getElementById('gate').style.opacity=0;
+                setTimeout(()=>{ 
+                    document.getElementById('gate').style.display='none'; 
+                    document.getElementById('viewport').style.opacity=1; 
+                    Nav.go('home');
+                    Audio.init(); // Unlock Audio Context
+                }, 800);
+            },
+            initDock() {
+                const tabs = [
+                    {i:'home',n:'Home',ic:'📅'}, {i:'sanctum',n:'Sanctum',ic:'🕉️'}, {i:'ahara',n:'Ahara',ic:'🥗'}, 
+                    {i:'sadhana',n:'Sadhana',ic:'📿'}, {i:'media',n:'Media',ic:'📺'}, {i:'parivar',n:'Parivar',ic:'👪'},
+                    {i:'gyan',n:'Gyan',ic:'🧠'}, {i:'yantra',n:'Yantra',ic:'🧿'}, {i:'sankalpa',n:'Sankalpa',ic:'🎯'},
+                    {i:'prasad',n:'Prasad',ic:'🏆'}, {i:'yatra',n:'Yatra',ic:'📍'}, {i:'mantra',n:'Mantra',ic:'📜'},
+                    {i:'chakra',n:'Chakra',ic:'🧘'}, {i:'festivals',n:'Utsav',ic:'🎉'}, {i:'community',n:'Sangha',ic:'🌍'},
+                    {i:'ascent',n:'Ascent',ic:'🏔️'}, {i:'daan',n:'Daan',ic:'🤲'}, {i:'dreams',n:'Dreams',ic:'🌙'},
+                    {i:'rudraksha',n:'Rudra',ic:'🌰'}, {i:'settings',n:'Settings',ic:'⚙️'}
+                ];
+                document.getElementById('dock-items').innerHTML = tabs.map(t => 
+                    `<div class="nav-item" id="nav-${t.i}" onclick="Nav.go('${t.i}')"><div class="nav-icon">${t.ic}</div>${t.n}</div>`
+                ).join('');
+            }
         };
 
-        // Initialize App
-        App.init();
+        const Nav = {
+            go(id) {
+                document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+                document.getElementById('view-'+id).classList.add('active');
+                document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+                const btn = document.getElementById('nav-'+id);
+                if(btn) btn.classList.add('active');
+            }
+        };
+
+        /* --- MODULE LOGIC --- */
+        const Audio={ctx:null,init(){if(!this.ctx)this.ctx=new(window.AudioContext||window.webkitAudioContext)();},playBell(){this.init();const o=this.ctx.createOscillator();const g=this.ctx.createGain();o.frequency.value=500;g.gain.exponentialRampToValueAtTime(0.001,this.ctx.currentTime+2);o.connect(g);g.connect(this.ctx.destination);o.start();o.stop(this.ctx.currentTime+2);},playWater(){this.init();const b=this.ctx.createBuffer(1,this.ctx.sampleRate,this.ctx.sampleRate);const d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;const s=this.ctx.createBufferSource();s.buffer=b;const f=this.ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=400;s.connect(f);f.connect(this.ctx.destination);s.start();s.stop(this.ctx.currentTime+2);}};
+        
+        const Puja={pour(){document.getElementById('stream').classList.add('on');Audio.playWater();Game.addPoints(5);setTimeout(()=>document.getElementById('stream').classList.remove('on'),2000);},light(){document.getElementById('flame').classList.toggle('lit');Game.addPoints(2);}};
+        const Japa={c:0,count(){this.c++;document.getElementById('jap-count').innerText=this.c;if(navigator.vibrate)navigator.vibrate(10);Game.addPoints(1);}};
+        
+        const Ahara={
+            isFast:false,
+            toggle(){this.isFast=!this.isFast; this.render();},
+            render(){
+                const m = this.isFast ? ["Fruit & Milk","Sabudana Khichdi","Nuts"] : ["Poha & Tea","Dal Rice Roti","Veg Soup"];
+                document.getElementById('diet-list').innerHTML = m.map(f=>`<div style='padding:15px; border-bottom:1px solid #333;'>${f}</div>`).join('');
+            }
+        };
+
+        const Util={
+            alarm(){ const b=new Blob(["BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:Puja\nDTSTART:20250101T060000Z\nEND:VEVENT\nEND:VCALENDAR"],{type:'text/calendar'}); const u=URL.createObjectURL(b); window.open(u); },
+            map(){ const c=document.getElementById('city-in').value; if(c) document.getElementById('gmap').src=`https://www.google.com/maps?q=${c}&output=embed`; }
+        };
+
+        // Init
+        App.initDock();
+        const g=document.getElementById('calendar'); for(let i=1;i<=30;i++)g.innerHTML+=`<div class="cal-day ${new Date(2025,0,i).getDay()===1?'today':''}">${i}</div>`;
+        Ahara.render();
+        ['Somnath','Kashi','Mahakal','Kedarnath'].forEach(n=>document.getElementById('media-grid').innerHTML+=`<div class="jyoti-card" onclick="window.open('https://youtube.com/results?search_query=${n} aarti')">🎥 ${n}</div>`);
+        const fam=[{n:'Ganesh',i:'🐘'},{n:'Shiva',i:'🔱'},{n:'Parvati',i:'🌺'}]; document.getElementById('fam-list').innerHTML=fam.map(f=>`<div style="display:flex; align-items:center; background:#111; padding:10px; margin-bottom:10px; border-radius:10px;"><div style="font-size:2rem; margin-right:15px;">${f.i}</div><div><b>${f.n}</b></div><button class="btn-glass" style="margin-left:auto;" onclick="Game.addPoints(1)">Chant</button></div>`).join('');
+        Game.ui();
 
     </script>
 </body>
