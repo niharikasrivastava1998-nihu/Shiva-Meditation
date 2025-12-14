@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ShivaOS: Maha-Kailash</title>
-    <meta name="theme-color" content="#000000">
+    <title>ShivaOS: Ananda</title>
+    <meta name="theme-color" content="#0a0a12">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Manrope:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@300;500;700&display=swap');
 
         :root {
-            --bg: #000000;
-            --glass: rgba(20, 20, 25, 0.95);
-            --border: 1px solid rgba(255, 255, 255, 0.12);
+            --bg: #0a0a12;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --primary: #8A2BE2; /* Deep Purple */
+            --accent: #00E5FF; /* Cyan */
             --gold: #FFD700;
-            --rudra: #ff4444;
-            --chakra: #00e5ff;
-            --text: #ffffff;
+            --success: #00ff9d;
+            --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-fire: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-water: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
             --nav-height: 85px;
             --safe-bottom: env(safe-area-inset-bottom);
         }
@@ -23,373 +26,378 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
         body {
-            margin: 0; background: var(--bg); color: var(--text);
-            font-family: 'Manrope', sans-serif; height: 100vh; overflow: hidden;
+            margin: 0; background: var(--bg); color: #fff;
+            font-family: 'Outfit', sans-serif; height: 100vh; overflow: hidden;
             display: flex; flex-direction: column;
-            background-image: radial-gradient(circle at 50% 0%, #1a1a2e, #000);
+            background-image: radial-gradient(circle at 50% -20%, #2a0845, #000000);
         }
 
-        /* --- 1. COSMIC GATE --- */
-        #gate {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000;
-            background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: transform 0.8s ease-in-out, opacity 0.8s;
+        /* --- 1. SPLASH SCREEN --- */
+        #splash {
+            position: fixed; inset: 0; background: #000; z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 1s ease;
         }
-        .gate-mandala {
-            width: 220px; height: 220px; border: 2px solid var(--gold); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; position: relative;
-            animation: spin 60s linear infinite; cursor: pointer;
-            box-shadow: 0 0 60px rgba(255, 215, 0, 0.2); background: radial-gradient(circle, #222, #000);
+        .splash-om {
+            font-size: 6rem; background: var(--gradient-fire); -webkit-background-clip: text; color: transparent;
+            animation: float 3s ease-in-out infinite, glow 2s ease-in-out infinite alternate;
         }
-        .gate-mandala::before { content:''; position:absolute; inset:10px; border:1px dashed rgba(255,255,255,0.3); border-radius:50%; }
-        .gate-icon { font-size: 5rem; animation: breathe 3s infinite; }
-        .gate-text { margin-top: 30px; font-family: 'Cinzel'; letter-spacing: 4px; color: var(--gold); font-size: 0.9rem; }
+        .splash-text {
+            margin-top: 20px; font-family: 'Cinzel'; letter-spacing: 5px; color: #fff; opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.5s;
+        }
+        .loader-dots span {
+            display: inline-block; width: 8px; height: 8px; background: var(--accent); border-radius: 50%;
+            margin: 0 4px; animation: bounce 0.6s infinite alternate;
+        }
+        .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        /* --- 2. HEADER & SOUND TOGGLE --- */
+        #header {
+            position: fixed; top: 0; width: 100%; height: 60px; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+            background: rgba(10,10,15,0.8); backdrop-filter: blur(20px); border-bottom: var(--glass-border);
+        }
+        .logo { font-family: 'Cinzel'; font-weight: 700; background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; color: transparent; }
+        .snd-toggle {
+            width: 40px; height: 40px; border-radius: 50%; background: var(--glass);
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s;
+        }
+        .snd-toggle.active { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); }
+
+        /* --- 3. UI COMPONENTS --- */
+        #viewport { flex: 1; overflow-y: auto; padding: 80px 20px 100px 20px; scroll-behavior: smooth; }
         
-        @keyframes spin { 100%{transform:rotate(360deg);} }
-        @keyframes breathe { 0%,100%{opacity:0.6; transform:scale(1);} 50%{opacity:1; transform:scale(1.1);} }
-
-        /* --- 2. VIEWPORT --- */
-        #viewport { flex: 1; position: relative; overflow: hidden; opacity: 0; transition: opacity 1s; }
-        .view {
-            position: absolute; inset: 0; overflow-y: auto; padding: 20px; padding-bottom: calc(var(--nav-height) + 40px);
-            display: none; opacity: 0; transform: scale(0.95); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .card {
+            background: var(--glass); border: var(--glass-border); border-radius: 24px; padding: 20px;
+            margin-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; position: relative; overflow: hidden;
         }
-        .view.active { display: block; opacity: 1; transform: scale(1); }
-
-        /* UI KIT */
-        .card { background: var(--glass); border: var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(15px); }
-        .card-h { font-family: 'Cinzel'; color: var(--gold); font-size: 1.2rem; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
-        .btn-gold { width:100%; background: var(--gold); color: #000; border: none; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; margin-top: 10px; }
-        .btn-glass { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; font-size: 0.8rem; cursor: pointer; color: #ccc; }
-        .btn-glass.active { background: var(--gold); color: #000; border-color: var(--gold); }
-
-        /* --- TAB 1: HOME (Clickable Calendar) --- */
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
-        .cal-day { padding: 12px 0; background: #111; border-radius: 8px; font-size: 0.9rem; color: #888; cursor: pointer; transition: 0.2s; }
-        .cal-day:active { background: var(--gold); color: #000; }
-        .cal-day.somvar { border: 1px solid #4CAF50; color: #4CAF50; font-weight: bold; }
-        .cal-day.today { background: var(--gold); color: #000; font-weight: bold; box-shadow: 0 0 15px rgba(255,215,0,0.3); }
-
-        /* --- TAB 2: SANCTUM (Sound + Physics) --- */
-        .altar { height: 450px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .kalash { width: 100px; height: 80px; background: linear-gradient(135deg, #b87333, #e6a36c); border-radius: 10px 10px 50px 50px; z-index: 20; cursor: pointer; transition: transform 0.2s; box-shadow: 0 10px 30px #000; }
-        .kalash:active { transform: rotate(-15deg) translateY(5px); }
-        .stream { position: absolute; top: 140px; width: 8px; height: 0; background: linear-gradient(to bottom, #fff, #87ceeb); transition: height 0.2s; z-index: 15; opacity: 0.8; box-shadow: 0 0 15px #87ceeb; }
-        .stream.on { height: 180px; }
-        .lingam { width: 140px; height: 200px; margin-top: 100px; background: radial-gradient(circle at 30% 30%, #444, #000); border-radius: 70px 70px 40px 40px; position: relative; z-index: 10; box-shadow: inset 10px 10px 30px rgba(255,255,255,0.1), 0 20px 60px #000; }
+        .card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.3); }
+        .card-h { font-family: 'Cinzel'; font-size: 1.1rem; color: #fff; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* --- TAB 3: AHARA (Fasting Toggle) --- */
-        .toggle-container { background: #222; border-radius: 30px; padding: 5px; display: flex; margin-bottom: 20px; border: 1px solid #333; }
-        .toggle-btn { flex: 1; text-align: center; padding: 10px; border-radius: 25px; font-size: 0.8rem; cursor: pointer; transition: 0.3s; color: #888; }
-        .toggle-btn.active { background: #4CAF50; color: #fff; font-weight: bold; }
-        .meal-card { display: flex; align-items: center; background: #111; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--gold); }
+        .btn-grad {
+            width: 100%; padding: 15px; border: none; border-radius: 16px; font-weight: bold; color: #fff;
+            background: var(--gradient-main); cursor: pointer; transition: 0.2s; position: relative; overflow: hidden;
+        }
+        .btn-grad:active { transform: scale(0.95); filter: brightness(1.2); }
+        .btn-grad::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shine 3s infinite;
+        }
 
-        /* --- TAB 4: SADHANA (Semi-Circle Mala) --- */
-        .mala-curve { 
-            width: 300px; height: 150px; border-radius: 150px 150px 0 0; border: 2px dashed rgba(255,255,255,0.1); 
-            margin: 0 auto 20px auto; position: relative; display: flex; justify-content: center;
+        /* --- 4. PARTICLES --- */
+        .particle {
+            position: fixed; width: 8px; height: 8px; border-radius: 50%; pointer-events: none; z-index: 9999;
+            animation: fall 1s ease-in forwards;
         }
-        .bead {
-            width: 50px; height: 50px; background: radial-gradient(circle at 30% 30%, #8B4513, #3e1e05);
-            border-radius: 50%; position: absolute; top: -25px; transition: transform 0.3s ease-out;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.8); border: 1px solid #5c3a1e;
+
+        /* --- ANIMATIONS --- */
+        @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
+        @keyframes glow { from{text-shadow:0 0 10px var(--primary);} to{text-shadow:0 0 30px var(--accent);} }
+        @keyframes fadeInUp { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+        @keyframes bounce { to{transform:translateY(-10px);} }
+        @keyframes shine { 0%{left:-100%;} 20%{left:100%;} 100%{left:100%;} }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(255,215,0,0.7);} 70%{box-shadow:0 0 0 20px rgba(255,215,0,0);} 100%{box-shadow:0 0 0 0 rgba(255,215,0,0);} }
+
+        /* --- MODULE: HOME --- */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-box {
+            background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
         }
+        .stat-box:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); }
+        .stat-val { font-size: 2rem; font-weight: 700; background: var(--gradient-water); -webkit-background-clip: text; color: transparent; }
+
+        /* --- MODULE: SANCTUM --- */
+        .altar-3d { height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .lingam { 
+            width: 100px; height: 140px; background: radial-gradient(circle at 30% 30%, #444, #000); 
+            border-radius: 50px 50px 30px 30px; box-shadow: 0 20px 50px #000; position: relative; z-index: 5;
+        }
+        .tripundra { position: absolute; top: 40px; width: 100%; text-align: center; opacity: 0.8; }
+        .om-glow { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); 
+            font-size: 8rem; opacity: 0.1; color: var(--gold); pointer-events: none; transition: 0.3s;
+        }
+        .pouring .om-glow { opacity: 0.6; text-shadow: 0 0 50px var(--accent); }
         
-        /* --- TAB 5: MEDIA (Thumbnails) --- */
-        .jyoti-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .jyoti-card { 
-            background: #151515; border-radius: 10px; overflow: hidden; cursor: pointer; border: 1px solid #333;
-        }
-        .jyoti-thumb { height: 80px; background: linear-gradient(45deg, #222, #444); display: flex; align-items: center; justify-content: center; font-size: 2rem; }
-        .jyoti-name { padding: 10px; font-size: 0.8rem; text-align: center; font-weight: bold; }
-
-        /* --- TAB 16: ASCENT (Corrected) --- */
-        .mountain-scroll { height: 250vh; position: relative; display: flex; flex-direction: column-reverse; align-items: center; background: linear-gradient(to top, #000, #1a1a2e); padding-bottom: 50px; }
-        .step { background: rgba(255,255,255,0.05); border-left: 4px solid var(--gold); padding: 20px; width: 90%; margin: 10vh 0; backdrop-filter: blur(10px); border-radius: 0 15px 15px 0; }
+        /* --- MODULE: AHARA --- */
+        .diet-toggle { display: flex; background: #222; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
+        .dt-btn { flex: 1; padding: 12px; text-align: center; border-radius: 8px; font-size: 0.9rem; cursor: pointer; transition: 0.3s; color: #888; }
+        .dt-btn.active { background: var(--success); color: #000; font-weight: bold; box-shadow: 0 5px 15px rgba(0,255,157,0.3); }
 
         /* --- DOCK --- */
-        #dock-container {
+        #dock {
             position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height);
-            background: rgba(10,10,12,0.98); backdrop-filter: blur(20px); border-top: var(--border);
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); border-top: var(--glass-border);
             z-index: 1000; padding-bottom: var(--safe-bottom);
             overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none;
         }
-        #dock-container::-webkit-scrollbar { display: none; }
-        .dock-scroll { display: flex; padding: 0 10px; height: 100%; align-items: center; gap: 10px; }
+        .dock-content { display: flex; padding: 0 15px; height: 100%; align-items: center; gap: 10px; }
         .nav-item {
-            display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
-            color: #666; font-size: 0.65rem; transition: 0.3s; min-width: 70px; height: 65px;
-            border-radius: 12px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-width: 70px; height: 60px; color: #666; border-radius: 12px; transition: 0.3s; font-size: 0.7rem; font-weight: 600;
         }
-        .nav-icon { font-size: 1.6rem; margin-bottom: 4px; }
-        .nav-item.active { background: rgba(255,255,255,0.08); color: var(--gold); }
-        .nav-item.active .nav-icon { transform: translateY(-3px); text-shadow: 0 0 15px var(--gold); }
+        .nav-icon { font-size: 1.5rem; margin-bottom: 4px; transition: 0.3s; }
+        .nav-item.active { background: rgba(255,255,255,0.1); color: #fff; }
+        .nav-item.active .nav-icon { transform: translateY(-3px); color: var(--accent); text-shadow: 0 0 10px var(--accent); }
 
-        .input-field { width: 100%; padding: 12px; background: #222; border: 1px solid #333; color: #fff; border-radius: 10px; font-size: 1rem; }
     </style>
 </head>
 <body>
 
-    <div id="gate" onclick="App.enter()">
-        <div class="gate-mandala"><div class="gate-icon">🕉️</div></div>
-        <p class="gate-text">TAP TO ENTER</p>
+    <div id="splash">
+        <div class="splash-om">🕉️</div>
+        <div class="splash-text">SHIVA SADHANA</div>
+        <div class="loader-dots" style="margin-top: 20px;"><span></span><span></span><span></span></div>
+    </div>
+
+    <div id="header">
+        <div class="logo">MAHA KAILASH</div>
+        <div class="snd-toggle" onclick="Sound.toggle()" id="mute-btn">🔇</div>
     </div>
 
     <div id="viewport">
-
-        <div id="view-home" class="view active">
-            <div class="card">
-                <div class="card-h">Panchang</div>
-                <div class="cal-grid" id="calendar"></div>
-                <p style="text-align:center; margin-top:10px; font-size:0.8rem; color:#aaa;">Tap a date to set alarm</p>
-            </div>
-            <input type="datetime-local" id="alarm-picker" style="display:none;" onchange="alert('Alarm Set on Device!')">
-        </div>
-
-        <div id="view-sanctum" class="view">
-            <div class="card" style="text-align:center; height:75vh; display:flex; flex-direction:column; justify-content:center;">
-                <div class="card-h" style="justify-content:center;">Virtual Sanctum</div>
-                <div class="altar">
-                    <div class="kalash" onclick="Puja.pour()"></div><div id="stream" class="stream"></div>
-                    <div class="lingam"><div class="tripundra"></div></div>
-                    <div class="diya" onclick="Puja.light()"><div id="flame" class="flame"></div><svg width="70" viewBox="0 0 100 50"><path d="M0,20 Q50,60 100,20 L100,25 Q50,70 0,25 Z" fill="#5c3a1e"/></svg></div>
-                </div>
-                <button class="btn-gold" onclick="Puja.pour()">Pour Jal (Sound)</button>
-            </div>
-        </div>
-
-        <div id="view-ahara" class="view">
-            <div class="card">
-                <div class="card-h">Meal Planner</div>
-                <div class="toggle-container">
-                    <div class="toggle-btn active" onclick="Ahara.toggle(false, this)">Satvik Mode</div>
-                    <div class="toggle-btn" onclick="Ahara.toggle(true, this)">Fasting Mode</div>
-                </div>
-                <div id="diet-list"></div>
-            </div>
-        </div>
-
-        <div id="view-sadhana" class="view">
-            <div class="card" style="text-align:center;">
-                <div class="card-h" style="justify-content:center;">Virtual Mala</div>
-                <div style="font-size:3rem; color:var(--gold); margin-bottom:20px;" id="jap-count">0</div>
-                <div class="mala-curve" onclick="Japa.count()">
-                    <div class="bead" id="bead-main" style="left: 50%; transform: translateX(-50%);"></div>
-                </div>
-                <p style="color:#666;">Tap curved area to move beads</p>
-            </div>
-        </div>
-
-        <div id="view-media" class="view">
-            <div class="card">
-                <div class="card-h">12 Jyotirlingas</div>
-                <div class="jyoti-grid" id="jyoti-grid">
-                    </div>
-            </div>
-        </div>
-
-        <div id="view-parivar" class="view">
-            <div class="card"><div class="card-h">Family Mantras</div><div id="fam-list"></div></div>
-        </div>
-
-        <div id="view-gyan" class="view">
-            <div class="card">
-                <div class="card-h">Guidance</div>
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <button class="btn-glass" onclick="Gyan.get('peace')">Peace</button>
-                    <button class="btn-glass" onclick="Gyan.get('anger')">Anger</button>
-                    <button class="btn-glass" onclick="Gyan.get('fear')">Fear</button>
-                </div>
-                <div id="quote-box" style="padding:20px; background:#222; border-radius:12px; border-left:4px solid var(--gold); font-style:italic;">Select a mood...</div>
-            </div>
-        </div>
-
-        <div id="view-yantra" class="view">
-            <div class="card" style="text-align:center;">
-                <div class="card-h" style="justify-content:center;">Om Chant Test</div>
-                <div style="width:150px; height:150px; margin:20px auto; background:radial-gradient(circle,#222,#000); border:2px solid var(--chakra); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:3rem;">ॐ</div>
-                <button class="btn-gold" id="rec-btn" onclick="Yantra.start()">Hold & Chant (10s)</button>
-                <p id="rec-status" style="margin-top:10px; color:#aaa;">0s</p>
-            </div>
-        </div>
-
-        <div id="view-sankalpa" class="view">
-            <div class="card">
-                <div class="card-h">Vow Tracker</div>
-                <input type="text" id="vow-in" class="input-field" placeholder="I vow to...">
-                <button class="btn-gold" onclick="Sankalpa.add()">Add Vow</button>
-                <div id="vow-list" style="margin-top:20px;"></div>
-            </div>
-        </div>
-
-        <div id="view-prasad" class="view">
-            <div class="card">
-                <div class="card-h">Spiritual Earnings</div>
-                <div style="text-align:center;">
-                    <div style="font-size:4rem; color:var(--gold);" id="total-points">0</div>
-                    <div style="color:#aaa;">Karma Points</div>
-                    <div style="margin-top:20px; padding:10px; background:#222; border-radius:10px;">Level: <span style="color:var(--accent);">Shiv Gana</span></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-yatra" class="view">
-            <div class="card">
-                <div class="card-h">Find Temples</div>
-                <input type="text" id="city-in" class="input-field" placeholder="Enter City (e.g., Kashi)">
-                <button class="btn-gold" onclick="Yatra.search()">Search Map</button>
-                <iframe id="gmap" width="100%" height="300" style="border:0; margin-top:15px; border-radius:10px; filter:invert(90%);" src=""></iframe>
-            </div>
-        </div>
-
-        <div id="view-ascent" class="view" style="padding:0;">
-            <div class="mountain-scroll">
-                <div style="margin-top:50px; text-align:center; animation:breathe 3s infinite;">
-                    <div style="font-size:4rem; color:var(--gold);">ॐ</div>
-                    <div>SAMADHI</div>
-                </div>
-                <div class="step">8. Samadhi (Union)</div>
-                <div class="step">7. Dhyana (Meditation)</div>
-                <div class="step">6. Dharana (Concentration)</div>
-                <div class="step">5. Pratyahara (Withdrawal)</div>
-                <div class="step">4. Pranayama (Breath)</div>
-                <div class="step">3. Asana (Posture)</div>
-                <div class="step">2. Niyama (Observances)</div>
-                <div class="step">1. Yama (Restraints)</div>
-                <div style="margin-top:50px; color:#aaa;">Start Climb</div>
-            </div>
-        </div>
-
+        <div id="view-container"></div>
     </div>
 
-    <div id="dock-container">
-        <div class="dock-scroll">
-            <div class="nav-item active" onclick="Nav.go('home', this)">📅<br>Home</div>
-            <div class="nav-item" onclick="Nav.go('sanctum', this)">🕉️<br>Sanctum</div>
-            <div class="nav-item" onclick="Nav.go('ahara', this)">🥗<br>Ahara</div>
-            <div class="nav-item" onclick="Nav.go('sadhana', this)">📿<br>Sadhana</div>
-            <div class="nav-item" onclick="Nav.go('media', this)">📺<br>Media</div>
-            <div class="nav-item" onclick="Nav.go('parivar', this)">👪<br>Parivar</div>
-            <div class="nav-item" onclick="Nav.go('gyan', this)">📜<br>Gyan</div>
-            <div class="nav-item" onclick="Nav.go('yantra', this)">🎙️<br>Yantra</div>
-            <div class="nav-item" onclick="Nav.go('sankalpa', this)">🎯<br>Vows</div>
-            <div class="nav-item" onclick="Nav.go('prasad', this)">🏆<br>Prasad</div>
-            <div class="nav-item" onclick="Nav.go('yatra', this)">📍<br>Yatra</div>
-            <div class="nav-item" onclick="Nav.go('ascent', this)">🏔️<br>Ascent</div>
-        </div>
+    <div id="dock">
+        <div class="dock-content" id="dock-items">
+            </div>
     </div>
 
     <script>
-        // --- CORE & AUDIO ---
-        const AudioSys = {
+        /* --- 🔊 ADVANCED AUDIO ENGINE (Web Audio API) --- */
+        const Sound = {
             ctx: null,
-            init() { if(!this.ctx) this.ctx=new(window.AudioContext||window.webkitAudioContext)(); },
-            playTone(freq, type='sine') {
+            muted: true,
+            init() { 
+                if(!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    this.master = this.ctx.createGain();
+                    this.master.connect(this.ctx.destination);
+                }
+            },
+            toggle() {
                 this.init();
-                const o=this.ctx.createOscillator(); const g=this.ctx.createGain();
-                o.frequency.value=freq; o.type=type;
-                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime+1.5);
-                o.connect(g); g.connect(this.ctx.destination); o.start(); o.stop(this.ctx.currentTime+1.5);
-            }
-        };
+                this.muted = !this.muted;
+                const btn = document.getElementById('mute-btn');
+                btn.innerText = this.muted ? "🔇" : "🔊";
+                btn.classList.toggle('active');
+                if(!this.muted) {
+                    this.ctx.resume();
+                    this.play('click');
+                }
+            },
+            play(type) {
+                if(this.muted || !this.ctx) return;
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const g = this.ctx.createGain();
+                osc.connect(g); g.connect(this.master);
 
-        const App = {
-            enter() {
-                document.getElementById('gate').style.opacity=0;
-                setTimeout(()=>{ document.getElementById('gate').style.display='none'; document.getElementById('view-home').classList.add('active'); document.getElementById('viewport').style.opacity=1; }, 800);
-            }
-        };
-
-        const Nav={go(id,btn){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+id).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}};
-
-        // --- FEATURES ---
-        const Cal={
-            init(){
-                const g=document.getElementById('calendar');
-                for(let i=1;i<=30;i++){
-                    const d=document.createElement('div');
-                    d.className = `cal-day ${new Date(2025,0,i).getDay()===1?'somvar':''}`;
-                    d.innerText=i;
-                    d.onclick = () => document.getElementById('alarm-picker').showPicker();
-                    g.appendChild(d);
+                if(type === 'click') {
+                    osc.frequency.setValueAtTime(800, t);
+                    osc.frequency.exponentialRampToValueAtTime(100, t + 0.1);
+                    g.gain.setValueAtTime(0.1, t);
+                    g.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+                    osc.start(t); osc.stop(t + 0.1);
+                } 
+                else if (type === 'karma') { // 528 Hz Healing
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(528, t);
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.3, t + 0.1);
+                    g.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
+                    osc.start(t); osc.stop(t + 1.5);
+                }
+                else if (type === 'om') { // 136.1 Hz
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(136.1, t);
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.4, t + 1);
+                    g.gain.linearRampToValueAtTime(0, t + 4);
+                    osc.start(t); osc.stop(t + 4);
+                }
+                else if (type === 'water') {
+                    // White noise buffer
+                    const bufferSize = this.ctx.sampleRate * 2;
+                    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                    
+                    const noise = this.ctx.createBufferSource();
+                    noise.buffer = buffer;
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'lowpass'; filter.frequency.value = 400;
+                    noise.connect(filter); filter.connect(g);
+                    g.gain.setValueAtTime(0.5, t);
+                    g.gain.exponentialRampToValueAtTime(0.01, t + 2);
+                    noise.start(t); noise.stop(t + 2);
+                    return; // Return early as osc is not used
                 }
             }
         };
 
-        const Puja={
-            pour(){ 
-                document.getElementById('stream').classList.add('on'); 
-                AudioSys.playTone(400,'triangle'); // Water-ish tone simulation
-                setTimeout(()=>document.getElementById('stream').classList.remove('on'),2000); 
+        /* --- ✨ VISUAL FX --- */
+        const FX = {
+            confetti() {
+                for(let i=0; i<30; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = Math.random() * 100 + 'vw';
+                    p.style.top = '-10px';
+                    p.style.background = `hsl(${Math.random()*360}, 100%, 50%)`;
+                    document.body.appendChild(p);
+                    setTimeout(()=>p.remove(), 1000);
+                }
+            }
+        };
+
+        /* --- 📱 APP LOGIC --- */
+        const App = {
+            points: 0,
+            
+            init() {
+                // Remove Splash
+                setTimeout(() => {
+                    document.getElementById('splash').style.opacity = 0;
+                    setTimeout(() => document.getElementById('splash').style.display = 'none', 1000);
+                }, 2500);
+
+                this.renderDock();
+                this.route('home');
             },
-            light(){ document.getElementById('flame').classList.toggle('lit'); AudioSys.playTone(800); }
-        };
 
-        const Ahara={
-            toggle(fasting, btn){
-                document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
-                btn.classList.add('active');
-                const list = document.getElementById('diet-list');
-                const fastMenu = ["Sabudana Khichdi", "Fruit Salad", "Milk & Nuts"];
-                const regMenu = ["Dal Rice", "Roti Sabzi", "Idli Sambar"];
-                const items = fasting ? fastMenu : regMenu;
-                list.innerHTML = items.map(i=>`<div class="meal-card"><span>🍲</span><span style="margin-left:10px;">${i}</span></div>`).join('');
+            addPoints(n) {
+                this.points += n;
+                Sound.play('karma');
+                if(n >= 10) FX.confetti();
+                // Update specific UI if visible
+                const el = document.getElementById('karma-disp');
+                if(el) el.innerText = this.points;
+            },
+
+            route(id) {
+                Sound.play('click');
+                const container = document.getElementById('view-container');
+                container.innerHTML = Views[id]();
+                
+                // Active Dock State
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                const activeNav = document.getElementById(`nav-${id}`);
+                if(activeNav) activeNav.classList.add('active');
+
+                // Init Logic for specific views
+                if(id === 'home') this.initCal();
+            },
+
+            renderDock() {
+                const tabs = [
+                    {id:'home', i:'📅', n:'Home'}, {id:'sanctum', i:'🕉️', n:'Puja'},
+                    {id:'ahara', i:'🥗', n:'Diet'}, {id:'sadhana', i:'🧘', n:'Tools'},
+                    {id:'media', i:'🎵', n:'Media'}, {id:'prasad', i:'🏆', n:'Stats'}
+                ];
+                const d = document.getElementById('dock-items');
+                d.innerHTML = tabs.map(t => `
+                    <div class="nav-item" id="nav-${t.id}" onclick="App.route('${t.id}')">
+                        <div class="nav-icon">${t.i}</div><div>${t.n}</div>
+                    </div>
+                `).join('');
+            },
+
+            // Calendar Logic
+            initCal() {
+                const g = document.getElementById('cal-grid');
+                if(!g) return;
+                g.innerHTML = '';
+                for(let i=1; i<=30; i++) {
+                    const isMon = new Date(2025, 0, i).getDay() === 1;
+                    g.innerHTML += `<div class="cal-day" style="padding:10px; background:${isMon?'rgba(0,255,157,0.1)':'rgba(255,255,255,0.05)'}; border:${isMon?'1px solid var(--success)':'none'}; border-radius:8px; text-align:center;">${i}</div>`;
+                }
             }
         };
 
-        const Japa={
-            c:0,
-            count(){
-                this.c++; document.getElementById('jap-count').innerText=this.c;
-                if(navigator.vibrate) navigator.vibrate(15);
-                // Rotate Bead Visual
-                document.getElementById('bead-main').style.transform = `translateX(-50%) rotate(${this.c*20}deg)`;
-            }
+        /* --- 📄 VIEW TEMPLATES --- */
+        const Views = {
+            home: () => `
+                <div class="card" style="background:var(--gradient-main);">
+                    <div class="card-h">Pranam, Devotee</div>
+                    <div class="stat-grid">
+                        <div class="stat-box"><div class="stat-val" id="karma-disp">${App.points}</div><div style="font-size:0.8rem; opacity:0.8;">Karma Pts</div></div>
+                        <div class="stat-box"><div class="stat-val">3</div><div style="font-size:0.8rem; opacity:0.8;">Day Streak</div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-h">Panchang Calendar</div>
+                    <div id="cal-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:5px;"></div>
+                    <button class="btn-grad" style="margin-top:15px;" onclick="alert('Alarm Set!'); Sound.play('success');">⏰ Set Puja Alarm</button>
+                </div>
+            `,
+            sanctum: () => `
+                <div class="card" style="text-align:center; height:70vh; display:flex; flex-direction:column; justify-content:center;">
+                    <div class="card-h" style="justify-content:center;">Abhishekam</div>
+                    <div class="altar-3d" id="altar-area">
+                        <div class="om-glow">🕉️</div>
+                        <div class="lingam"><div class="tripundra" style="color:rgba(255,255,255,0.8); font-size:2rem;">•••</div></div>
+                    </div>
+                    <button class="btn-grad" onclick="
+                        Sound.play('water'); 
+                        document.getElementById('altar-area').classList.add('pouring');
+                        App.addPoints(5);
+                        setTimeout(()=>document.getElementById('altar-area').classList.remove('pouring'), 2000);
+                    ">💧 Pour Gangajal</button>
+                </div>
+            `,
+            ahara: () => `
+                <div class="card">
+                    <div class="card-h">Meal Planner</div>
+                    <div class="diet-toggle">
+                        <div class="dt-btn active" onclick="this.classList.add('active'); this.nextElementSibling.classList.remove('active'); document.getElementById('menu').innerHTML='Fruits, Milk, Sabudana'; Sound.play('click');">Satvik</div>
+                        <div class="dt-btn" onclick="this.classList.add('active'); this.previousElementSibling.classList.remove('active'); document.getElementById('menu').innerHTML='Water, Bilva, Air'; Sound.play('click');">Nirjala</div>
+                    </div>
+                    <div id="menu" style="font-size:1.2rem; text-align:center; padding:20px; border:1px dashed rgba(255,255,255,0.2); border-radius:12px;">Fruits, Milk, Sabudana</div>
+                </div>
+            `,
+            sadhana: () => `
+                <div class="card" style="text-align:center;">
+                    <div class="card-h" style="justify-content:center;">Meditation</div>
+                    <div style="font-size:4rem; margin:20px 0; animation:glow 3s infinite;">🕉️</div>
+                    <button class="btn-grad" onclick="Sound.play('om'); App.addPoints(10);">Start Dhyan (136.1Hz)</button>
+                </div>
+                <div class="card">
+                    <div class="card-h">Recording</div>
+                    <div class="loader-dots" style="text-align:center; opacity:0.5;"><span></span><span></span><span></span><span></span></div>
+                    <button class="btn-grad" style="background:#333; margin-top:15px;" onclick="this.style.background='red'; this.innerText='Recording...';">🎙️ Record Chant</button>
+                </div>
+            `,
+            media: () => `
+                <div class="card" style="background:linear-gradient(45deg, #1db954, #191414);">
+                    <div class="card-h">Spotify Playlist</div>
+                    <button class="btn-grad" style="background:#000;" onclick="window.open('http://spotify.com')">🎧 Open Chants</button>
+                </div>
+                <div class="card">
+                    <div class="card-h">Live Darshan</div>
+                    <div style="aspect-ratio:16/9; background:#000; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#888;">Video Feed Loading...</div>
+                </div>
+            `,
+            prasad: () => `
+                <div class="card">
+                    <div class="card-h">Your Journey</div>
+                    <div style="text-align:center;">
+                        <div style="font-size:4rem; font-weight:bold; color:var(--gold); text-shadow:0 0 20px var(--gold);">${App.points}</div>
+                        <div>Total Karma Points</div>
+                    </div>
+                </div>
+            `
         };
 
-        const Media={
-            init(){
-                const j = ["Somnath","Mallikarjuna","Mahakaleshwar","Omkareshwar","Kedarnath","Bhimashankar","Kashi","Trimbak","Vaidyanath","Nagesh","Ramesh","Grishnesh"];
-                document.getElementById('jyoti-grid').innerHTML = j.map(n=>`
-                    <div class="jyoti-card" onclick="window.open('https://www.youtube.com/results?search_query=${n}+aarti','_blank')">
-                        <div class="jyoti-thumb">🕉️</div><div class="jyoti-name">${n}</div>
-                    </div>`).join('');
-            }
-        };
-
-        const Yantra={
-            timer:null, sec:0,
-            start(){
-                this.sec=0; document.getElementById('rec-status').innerText="Recording...";
-                this.timer = setInterval(()=>{
-                    this.sec++;
-                    document.getElementById('rec-status').innerText=`${this.sec}s (Keep Chanting)`;
-                    if(this.sec>=10) { 
-                        clearInterval(this.timer); 
-                        document.getElementById('rec-status').innerText="✅ 10 Points Earned!";
-                        DB.addPoints(10);
-                    }
-                }, 1000);
-            }
-        };
-
-        const DB={
-            pts:0,
-            addPoints(n){ this.pts+=n; document.getElementById('total-points').innerText=this.pts; }
-        };
-
-        const Yatra={
-            search(){ const c=document.getElementById('city-in').value; if(c) document.getElementById('gmap').src=`https://www.google.com/maps?q=${c}&output=embed`; }
-        };
-
-        // Init
-        Cal.init();
-        Ahara.toggle(false, document.querySelector('.toggle-btn'));
-        Media.init();
+        // Initialize App
+        App.init();
 
     </script>
 </body>
 </html>
-```[How to Embed Spotify Content Into Your Website For Free?](https://www.youtube.com/watch?v=FDFoXkLMB_g)
-
-This video is relevant because it provides a tutorial on embedding Spotify content, which is directly applicable to the "Media" tab functionality requested for the ShivaOS app to play dedicated mantras and aarti.
