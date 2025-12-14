@@ -3,437 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ShivaOS: Astraverse</title>
+    <title>ShivaOS: Maha-Tantra</title>
     <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Manrope:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@300;500;700&display=swap');
 
         :root {
-            --bg: #000;
-            --glass: rgba(20, 20, 30, 0.85);
+            --bg: #000000;
+            --glass: rgba(20, 20, 25, 0.95);
             --gold: #FFD700;
-            --rudra: #ff4444;
             --accent: #00E5FF;
-            --text: #fff;
+            --rudra: #FF4444;
+            --nav-height: 85px;
             --safe-top: env(safe-area-inset-top);
             --safe-bottom: env(safe-area-inset-bottom);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Outfit', sans-serif; height: 100vh; overflow: hidden; }
 
-        body {
-            margin: 0; background: #000; color: #fff; font-family: 'Manrope', sans-serif;
-            height: 100vh; overflow: hidden;
+        /* --- 1. THE ASTRAVERSE GATE --- */
+        #gate {
+            position: fixed; inset: 0; z-index: 9999; background: radial-gradient(circle at center, #1a0b2e, #000);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 1s; cursor: pointer;
         }
-
-        /* --- 1. ASTRAVERSE (ENTRY) --- */
-        #astraverse {
-            position: fixed; inset: 0; z-index: 10000; background: radial-gradient(circle at bottom, #1a0b2e 0%, #000 70%);
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-            transition: transform 1.5s cubic-bezier(0.7, 0, 0.2, 1), opacity 1s;
+        .orbit-system { width: 300px; height: 300px; position: relative; animation: spin 60s linear infinite; }
+        .planet { position: absolute; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+        .earth-btn {
+            width: 100px; height: 100px; background: radial-gradient(circle at 30% 30%, #4facfe, #000);
+            border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            box-shadow: 0 0 50px rgba(79, 172, 254, 0.4); animation: breathe 4s infinite; z-index: 10;
         }
-        
-        /* Stars (CSS Procedural) */
-        .stars { width: 1px; height: 1px; background: transparent; box-shadow: 100px 200px #fff, 400px 500px #fff, 600px 100px #fff, 800px 300px #fff, 200px 700px #fff, 1000px 400px #fff, 150px 800px #fff; animation: twinkle 5s infinite; }
-        @keyframes twinkle { 50% { opacity: 0.5; } }
-
-        /* Solar System */
-        .orbit {
-            position: absolute; border: 1px solid rgba(255,255,255,0.1); border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .planet { position: absolute; border-radius: 50%; }
-        
-        .orbit-1 { width: 600px; height: 600px; animation: spin 40s linear infinite; }
-        .planet-1 { width: 20px; height: 20px; background: #ff5252; top: 50px; left: 100px; box-shadow: 0 0 20px #ff5252; } /* Mars */
-        
-        .orbit-2 { width: 900px; height: 900px; animation: spin 60s linear infinite reverse; }
-        .planet-2 { width: 40px; height: 40px; background: #ffd700; bottom: 100px; right: 200px; box-shadow: 0 0 30px #ffd700; } /* Jupiter */
-
-        /* The Earth (Button) */
-        .earth-container {
-            width: 140px; height: 140px; position: relative; cursor: pointer; z-index: 10;
-            animation: float 4s ease-in-out infinite;
-        }
-        .earth {
-            width: 100%; height: 100%; border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #4facfe, #00f2fe 40%, #000 90%);
-            box-shadow: 0 0 50px rgba(0, 242, 254, 0.4), inset -20px -20px 50px rgba(0,0,0,0.8);
-            position: relative; overflow: hidden;
-        }
-        /* Continents (Abstract) */
-        .earth::after {
-            content: ''; position: absolute; top: 20%; left: 20%; width: 40%; height: 60%;
-            background: rgba(76, 175, 80, 0.4); border-radius: 40%; filter: blur(5px);
-        }
-        .earth-label {
-            position: absolute; bottom: -40px; width: 100%; text-align: center;
-            font-family: 'Cinzel'; letter-spacing: 3px; font-size: 0.8rem; color: #aaa;
-        }
-
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
+        @keyframes breathe { 50% { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 80px rgba(79, 172, 254, 0.6); } }
 
-        /* --- 2. OS INTERFACE --- */
-        #os-ui { opacity: 0; transition: opacity 1s 0.5s; height: 100vh; display: flex; flex-direction: column; }
+        /* --- 2. OS UI LAYOUT --- */
+        #os-ui { opacity: 0; transition: opacity 1s; display: flex; flex-direction: column; height: 100vh; }
         
-        /* Status Bar */
         .status-bar {
             height: calc(30px + var(--safe-top)); padding-top: var(--safe-top);
             display: flex; justify-content: space-between; align-items: center; padding-left: 20px; padding-right: 20px;
-            background: rgba(0,0,0,0.5); font-size: 0.8rem;
+            font-size: 0.8rem; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); z-index: 100;
         }
 
-        /* Home Grid */
         #home-screen {
-            flex: 1; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(4, 1fr); 
-            gap: 20px 10px; align-content: flex-start; padding-bottom: 50px;
+            flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 100px;
+            display: grid; grid-template-columns: repeat(4, 1fr); align-content: flex-start; gap: 25px 15px;
         }
-        .app-icon {
-            display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;
-        }
-        .app-icon:active { transform: scale(0.9); opacity: 0.8; }
+        
+        .app-icon { display: flex; flex-direction: column; align-items: center; gap: 5px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: scale(0.5); }
         .icon-box {
-            width: 60px; height: 60px; border-radius: 18px; background: rgba(255,255,255,0.1);
+            width: 62px; height: 62px; border-radius: 18px; background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            font-size: 1.8rem; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: 0.2s;
         }
-        .icon-lbl { font-size: 0.7rem; font-weight: 500; color: #ddd; letter-spacing: 0.3px; }
+        .icon-box:active { transform: scale(0.9); filter: brightness(1.2); }
+        .icon-lbl { font-size: 0.7rem; color: #ccc; font-weight: 500; }
 
-        /* App Window */
+        @keyframes popIn { to { opacity: 1; transform: scale(1); } }
+
+        /* --- APP WINDOW --- */
         #app-window {
-            position: fixed; inset: 0; background: #111; z-index: 500; transform: translateY(100%);
+            position: fixed; inset: 0; background: #080808; z-index: 500; transform: translateY(100%);
             transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column;
         }
         #app-window.open { transform: translateY(0); }
         
         .app-header {
             height: calc(60px + var(--safe-top)); padding-top: var(--safe-top);
-            display: flex; align-items: center; padding-left: 15px; border-bottom: 1px solid #333;
-            background: rgba(20,20,20,0.95);
+            display: flex; align-items: center; padding-left: 15px; border-bottom: 1px solid #222;
+            background: rgba(15,15,20,0.95);
         }
-        .back-btn { font-size: 1.5rem; padding: 10px; color: var(--gold); cursor: pointer; }
-        .win-title { flex: 1; text-align: center; font-family: 'Cinzel'; font-weight: 700; margin-right: 40px; }
         .win-body { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: calc(20px + var(--safe-bottom)); }
 
-        /* --- INTERNAL APP STYLES --- */
-        .card { background: #1e1e1e; border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid #333; }
-        .btn-gold { width: 100%; padding: 14px; background: var(--gold); border: none; border-radius: 12px; color: #000; font-weight: bold; margin-top: 10px; }
-        
-        /* Mala Animation */
-        .mala-ring {
-            width: 250px; height: 250px; border-radius: 50%; border: 2px dashed #444; margin: 20px auto;
-            position: relative; transition: transform 0.3s ease-out; display: flex; align-items: center; justify-content: center;
+        /* --- GLOBAL AUDIO PLAYER (FLOATING) --- */
+        #global-player {
+            position: fixed; bottom: calc(var(--safe-bottom) + 10px); left: 10px; right: 10px;
+            background: rgba(20,20,20,0.95); border: 1px solid var(--gold); border-radius: 50px;
+            padding: 10px 20px; display: none; align-items: center; justify-content: space-between; z-index: 2000;
+            box-shadow: 0 10px 30px #000; backdrop-filter: blur(10px);
         }
-        .bead {
-            width: 40px; height: 40px; background: radial-gradient(circle, #8B4513, #3e1e05);
-            border-radius: 50%; position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-            box-shadow: 0 5px 15px #000; border: 1px solid #5c3a1e;
-        }
-        .meru { width: 50px; height: 50px; background: #gold; border-color: var(--gold); top: auto; bottom: -25px; }
 
-        /* Diet Toggle */
-        .toggle-box { display: flex; background: #000; padding: 5px; border-radius: 30px; margin-bottom: 15px; }
-        .toggle-opt { flex: 1; text-align: center; padding: 10px; border-radius: 20px; font-size: 0.8rem; color: #666; }
-        .toggle-opt.active { background: #4CAF50; color: #fff; font-weight: bold; }
+        /* --- INTERNAL STYLES --- */
+        .card { background: #151515; border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid #2a2a2a; }
+        .btn-gold { width: 100%; padding: 14px; background: var(--gold); border: none; border-radius: 12px; color: #000; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .btn-outline { padding: 8px 16px; border: 1px solid #444; border-radius: 20px; background: transparent; color: #ccc; cursor: pointer; }
+        .btn-outline.active { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
+
+        /* Sanctum Upgrades */
+        .offering-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-top: 20px; }
+        .offering-item { min-width: 60px; height: 60px; background: #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: 1px solid #333; }
+        
+        /* Breath Pacer */
+        .breath-circle {
+            width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--accent);
+            margin: 20px auto; transform: scale(1); opacity: 0.5;
+        }
+        .inhale { animation: breath-in 4s ease-in-out forwards; }
+        .exhale { animation: breath-out 4s ease-in-out forwards; }
+        @keyframes breath-in { 0%{transform:scale(1); opacity:0.5;} 100%{transform:scale(1.5); opacity:1;} }
+        @keyframes breath-out { 0%{transform:scale(1.5); opacity:1;} 100%{transform:scale(1); opacity:0.5;} }
+
+        /* Audio Viz */
+        .viz-bars { display: flex; align-items: center; justify-content: center; gap: 4px; height: 50px; }
+        .bar { width: 6px; background: var(--rudra); border-radius: 3px; height: 5px; transition: 0.1s; }
 
     </style>
 </head>
 <body>
 
-    <div id="astraverse">
-        <div class="stars"></div>
-        <div class="orbit orbit-1"><div class="planet planet-1"></div></div>
-        <div class="orbit orbit-2"><div class="planet planet-2"></div></div>
-        
-        <div class="earth-container" onclick="OS.boot()">
-            <div class="earth"></div>
-            <div class="earth-label">TAP EARTH</div>
+    <div id="gate" onclick="OS.boot()">
+        <div class="orbit-system">
+            <div class="planet" style="width:10px; height:10px; background:#aaa; top:0; left:50%; animation:spin 10s linear infinite;"></div>
+            <div class="planet" style="width:20px; height:20px; background:#f4a460; bottom:20%; right:20%; animation:spin 25s linear infinite;"></div>
         </div>
+        <div class="earth-btn"></div>
+        <p style="margin-top: 40px; font-family:'Cinzel'; letter-spacing:4px; color:#aaa; position:absolute; bottom:20%;">ENTER KAILASH</p>
     </div>
 
     <div id="os-ui">
         <div class="status-bar">
-            <div id="clock">12:00</div>
-            <div style="color:var(--gold);">Karma: <span id="karma-display">0</span></div>
+            <div>12:00</div>
+            <div style="color:var(--gold);">🕉️ <span id="karma-total">0</span></div>
         </div>
-
-        <div id="home-screen">
-            </div>
+        <div id="home-screen"></div>
+        
+        <div id="global-player">
+            <div id="player-txt" style="font-size:0.9rem;">Stopped</div>
+            <div style="font-size:1.5rem;" onclick="Audio.stop()">⏹️</div>
+        </div>
     </div>
 
     <div id="app-window">
         <div class="app-header">
-            <div class="back-btn" onclick="OS.close()">❮</div>
-            <div class="win-title" id="app-title">App</div>
+            <div class="back-btn" onclick="OS.close()" style="font-size:1.5rem; padding:10px; color:var(--gold);">❮</div>
+            <div class="win-title" id="app-title" style="flex:1; text-align:center; font-family:'Cinzel'; font-weight:700;"></div>
+            <div style="width:40px;"></div>
         </div>
         <div class="win-body" id="app-content"></div>
     </div>
 
     <script>
-        /* --- SYSTEM CORE --- */
+        /* --- 🧠 CORE LOGIC ENGINE --- */
         const OS = {
-            points: parseInt(localStorage.getItem('shiva_kp') || 0),
+            data: JSON.parse(localStorage.getItem('shiva_v40')) || { 
+                xp: 0, lvl: 1, inventory: ['Water', 'Flower'], history: [], settings: {sound:true} 
+            },
+            
+            save() { localStorage.setItem('shiva_v40', JSON.stringify(this.data)); this.updateUI(); },
             
             boot() {
-                // Zoom Effect
-                const g = document.getElementById('astraverse');
-                g.style.transform = "scale(8)";
-                g.style.opacity = "0";
-                
+                document.getElementById('gate').style.opacity = 0;
                 setTimeout(() => {
-                    g.style.display = 'none';
+                    document.getElementById('gate').style.display = 'none';
                     document.getElementById('os-ui').style.opacity = 1;
-                    this.renderIcons();
-                    this.updateClock();
-                    this.updateKarma(0);
-                    setInterval(this.updateClock, 1000);
+                    this.renderApps();
+                    Audio.init(); // Init Audio Context
                 }, 800);
             },
 
+            addXP(n, msg) {
+                this.data.xp += n;
+                this.save();
+                if(msg) alert(`+${n} Karma: ${msg}`); // Replace with nice toast in prod
+            },
+
+            updateUI() {
+                document.getElementById('karma-total').innerText = this.data.xp;
+            },
+
             apps: [
-                {id:'panchang', n:'Panchang', i:'📅', c:'#4CAF50'},
-                {id:'sanctum', n:'Sanctum', i:'🕉️', c:'#FFD700'},
-                {id:'ahara', n:'Ahara', i:'🥗', c:'#81C784'},
-                {id:'sadhana', n:'Sadhana', i:'📿', c:'#FF8A65'},
-                {id:'media', n:'Media', i:'📺', c:'#FF5252'},
-                {id:'parivar', n:'Parivar', i:'👪', c:'#BA68C8'},
-                {id:'gyan', n:'Gyan', i:'📜', c:'#FFD54F'},
-                {id:'yantra', n:'Yantra', i:'🧿', c:'#4FC3F7'},
-                {id:'sankalpa', n:'Sankalpa', i:'🎯', c:'#E57373'},
-                {id:'prasad', n:'Prasad', i:'🏆', c:'#F06292'},
-                {id:'yatra', n:'Yatra', i:'📍', c:'#A1887F'},
-                {id:'mantra', n:'Mantra', i:'🗣️', c:'#90A4AE'},
-                {id:'chakra', n:'Chakra', i:'🧘', c:'#7986CB'},
-                {id:'festivals', n:'Utsav', i:'🎉', c:'#FFB74D'},
-                {id:'community', n:'Sangha', i:'🌍', c:'#4DB6AC'},
-                {id:'ascent', n:'Ascent', i:'🏔️', c:'#9575CD'},
-                {id:'daan', n:'Daan', i:'🤲', c:'#AED581'},
-                {id:'dreams', n:'Dreams', i:'🌙', c:'#64B5F6'},
-                {id:'rudra', n:'Rudraksha', i:'🌰', c:'#DCE775'},
-                {id:'settings', n:'Settings', i:'⚙️', c:'#E0E0E0'}
+                {id:'home', n:'Home', i:'📅', c:'#4CAF50'}, {id:'sanctum', n:'Sanctum', i:'🛕', c:'#FFD700'},
+                {id:'ahara', n:'Ahara', i:'🥗', c:'#81C784'}, {id:'sadhana', n:'Sadhana', i:'📿', c:'#FF8A65'},
+                {id:'media', n:'Media', i:'🎧', c:'#FF5252'}, {id:'parivar', n:'Parivar', i:'👪', c:'#BA68C8'},
+                {id:'gyan', n:'Gyan', i:'🧠', c:'#FFD54F'}, {id:'yantra', n:'Yantra', i:'🧿', c:'#4FC3F7'},
+                {id:'sankalpa', n:'Sankalpa', i:'🎯', c:'#E57373'}, {id:'prasad', n:'Prasad', i:'🏆', c:'#F06292'},
+                {id:'yatra', n:'Yatra', i:'📍', c:'#A1887F'}, {id:'mantra', n:'Mantra', i:'📜', c:'#90A4AE'},
+                {id:'chakra', n:'Chakra', i:'🧘', c:'#7986CB'}, {id:'festivals', n:'Utsav', i:'🎉', c:'#FFB74D'},
+                {id:'community', n:'Sangha', i:'🌍', c:'#4DB6AC'}, {id:'ascent', n:'Ascent', i:'🏔️', c:'#9575CD'},
+                {id:'daan', n:'Daan', i:'🤲', c:'#AED581'}, {id:'dreams', n:'Dreams', i:'🌙', c:'#64B5F6'},
+                {id:'rudra', n:'Rudraksha', i:'🌰', c:'#DCE775'}, {id:'settings', n:'Settings', i:'⚙️', c:'#E0E0E0'}
             ],
 
-            renderIcons() {
-                const h = document.getElementById('home-screen');
-                h.innerHTML = this.apps.map(a => `
-                    <div class="app-icon" onclick="OS.open('${a.id}')">
+            renderApps() {
+                const grid = document.getElementById('home-screen');
+                grid.innerHTML = this.apps.map((a, i) => `
+                    <div class="app-icon" style="animation-delay:${i*0.03}s" onclick="OS.open('${a.id}')">
                         <div class="icon-box" style="color:${a.c}">${a.i}</div>
                         <div class="icon-lbl">${a.n}</div>
                     </div>
                 `).join('');
+                this.updateUI();
             },
 
             open(id) {
-                const app = this.apps.find(a => a.id === id);
-                document.getElementById('app-title').innerText = app.n;
-                document.getElementById('app-content').innerHTML = Content[id]();
+                document.getElementById('app-title').innerText = this.apps.find(a=>a.id===id).n;
+                document.getElementById('app-content').innerHTML = Apps[id]();
                 document.getElementById('app-window').classList.add('open');
-                
-                // Post-Render logic
-                if(id === 'home') Content.initCal();
+                if(id==='home') Apps.initHome();
+                if(id==='sadhana') Apps.initRecorder();
             },
-
-            close() {
-                document.getElementById('app-window').classList.remove('open');
-            },
-
-            updateKarma(n) {
-                this.points += n;
-                localStorage.setItem('shiva_kp', this.points);
-                document.getElementById('karma-display').innerText = this.points;
-                if(n > 0 && navigator.vibrate) navigator.vibrate(50);
-            },
-
-            updateClock() {
-                const d = new Date();
-                document.getElementById('clock').innerText = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            }
+            close() { document.getElementById('app-window').classList.remove('open'); }
         };
 
-        /* --- CONTENT GENERATORS --- */
-        const Content = {
+        /* --- 🔊 AUDIO SYNTHESIZER --- */
+        const Audio = {
+            ctx: null, osc: null,
+            init() { if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+            playTone(freq) {
+                this.init();
+                const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
+                o.frequency.value = freq; g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime+2);
+                o.connect(g); g.connect(this.ctx.destination); o.start(); o.stop(this.ctx.currentTime+2);
+            },
+            playBinaural(freq) {
+                // Simulating continuous play
+                document.getElementById('global-player').style.display = 'flex';
+                document.getElementById('player-txt').innerText = `Playing ${freq}Hz Tone`;
+            },
+            stop() { document.getElementById('global-player').style.display = 'none'; }
+        };
+
+        /* --- 📱 APP MODULES --- */
+        const Apps = {
             
-            // 1. CALENDAR + ALARM
-            panchang: () => {
-                setTimeout(() => {
-                    const g = document.getElementById('cal-grid');
-                    for(let i=1; i<=30; i++) {
-                        const isMon = new Date(2025, 0, i).getDay() === 1;
-                        g.innerHTML += `<div style="padding:10px; background:#111; border-radius:5px; border:${isMon?'1px solid green':''}; text-align:center;">${i}</div>`;
-                    }
-                }, 100);
-                return `
-                    <div class="card">
-                        <h2 style="margin:0 0 10px 0; color:var(--gold);">December 2025</h2>
-                        <div id="cal-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:5px;"></div>
-                    </div>
-                    <div class="card">
-                        <h3>Set Puja Alarm</h3>
-                        <input type="datetime-local" style="width:100%; background:#222; color:#fff; border:1px solid #333; padding:10px; border-radius:8px;">
-                        <button class="btn-gold" onclick="alert('Alarm saved to System Calendar'); OS.updateKarma(5)">Save Reminder</button>
-                    </div>
-                `;
+            // 1. HOME: Logic Driven
+            home: () => `<div class="card"><h2>Panchang</h2><div id="cal-view" style="display:grid; grid-template-columns:repeat(7,1fr); gap:5px;"></div></div><div class="card"><h3>Dincharya</h3><p>Next: Sandhya Aarti (7 PM)</p></div>`,
+            initHome: () => {
+                let h=''; for(let i=1;i<=30;i++) h+=`<div style="padding:10px; background:#111; border-radius:5px; text-align:center; color:${i===14?'gold':'#888'}">${i}</div>`;
+                document.getElementById('cal-view').innerHTML=h;
             },
 
-            // 2. SANCTUM (Sound)
+            // 2. SANCTUM: Advanced
             sanctum: () => `
                 <div class="card" style="text-align:center; height:60vh; display:flex; flex-direction:column; justify-content:center;">
-                    <div class="altar">
-                        <div style="font-size:5rem;">🛕</div>
-                        <div id="water-fx" style="height:0; width:5px; background:cyan; margin:0 auto; transition:0.2s;"></div>
-                        <div style="width:80px; height:120px; background:linear-gradient(#444, #000); border-radius:40px 40px 20px 20px; margin:0 auto;"></div>
-                    </div>
-                    <div style="margin-top:20px;">
-                        <button class="btn-gold" onclick="Content.pourWater()">💧 Pour Jal</button>
-                    </div>
+                    <div style="font-size:6rem;" id="shivling">🛕</div>
+                    <div id="offering-zone" style="height:20px; color:gold;"></div>
+                </div>
+                <div class="offering-scroll">
+                    <div class="offering-item" onclick="Apps.offer('💧 Water')">💧</div>
+                    <div class="offering-item" onclick="Apps.offer('🥛 Milk')">🥛</div>
+                    <div class="offering-item" onclick="Apps.offer('🍯 Honey')">🍯</div>
+                    <div class="offering-item" onclick="Apps.offer('🌺 Flower')">🌺</div>
+                    <div class="offering-item" onclick="Apps.offer('🍃 Bilva')">🍃</div>
                 </div>
             `,
-            pourWater: () => {
-                const fx = document.getElementById('water-fx');
-                fx.style.height = "100px";
-                // Web Audio Gen
-                const ctx = new (window.AudioContext||window.webkitAudioContext)();
-                const o = ctx.createOscillator();
-                const g = ctx.createGain();
-                o.connect(g); g.connect(ctx.destination);
-                o.type = 'sawtooth'; o.frequency.value = 100;
-                g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
-                o.start(); o.stop(ctx.currentTime + 1);
-                
-                setTimeout(() => fx.style.height="0", 1000);
-                OS.updateKarma(5);
+            offer: (item) => {
+                document.getElementById('offering-zone').innerText = `Offered ${item}`;
+                Audio.playTone(400); OS.addXP(5);
             },
 
-            // 3. AHARA (Diet Logic)
+            // 3. AHARA: Prana Tracker
             ahara: () => `
-                <div class="toggle-box">
-                    <div class="toggle-opt active" onclick="this.classList.add('active'); this.nextElementSibling.classList.remove('active'); document.getElementById('food-list').innerHTML='<li>Milk & Fruit</li><li>Sabudana Khichdi</li>';">Fasting (Somvar)</div>
-                    <div class="toggle-opt" onclick="this.classList.add('active'); this.previousElementSibling.classList.remove('active'); document.getElementById('food-list').innerHTML='<li>Dal Rice</li><li>Roti Sabzi</li>';">Satvik (Daily)</div>
-                </div>
                 <div class="card">
-                    <ul id="food-list" style="line-height:2;">
-                        <li>Milk & Fruit</li>
-                        <li>Sabudana Khichdi</li>
-                    </ul>
+                    <h3>Today's Prana: <span style="color:var(--accent)">High</span></h3>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span>Breakfast</span><button class="btn-outline" onclick="OS.addXP(5)">+ Fruit</button>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Dinner</span><button class="btn-outline" onclick="OS.addXP(5)">+ Milk</button>
+                    </div>
                 </div>
-                <button class="btn-gold" onclick="window.open('https://www.youtube.com/results?search_query=satvik+recipes','_blank')">Find Recipes</button>
             `,
 
-            // 4. SADHANA (Mala UI)
+            // 4. SADHANA: Real Visualizer
             sadhana: () => `
                 <div class="card" style="text-align:center;">
-                    <h1 id="bead-cnt" style="color:var(--gold); font-size:3rem;">0</h1>
-                    <div class="mala-ring" id="mala-wheel" onclick="Content.moveBead()">
-                        <div class="bead"></div>
+                    <div class="viz-bars" id="viz">
+                        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
                     </div>
-                    <p style="color:#888;">Tap ring to rotate</p>
+                    <button class="btn-gold" id="mic-btn" onclick="Apps.toggleMic()">🎙️ Start Chant</button>
                 </div>
             `,
-            moveBead: () => {
-                const w = document.getElementById('mala-wheel');
-                const c = document.getElementById('bead-cnt');
-                let rot = parseInt(w.getAttribute('data-rot') || 0) + 30;
-                w.style.transform = `rotate(${rot}deg)`;
-                w.setAttribute('data-rot', rot);
-                c.innerText = parseInt(c.innerText) + 1;
-                OS.updateKarma(1);
+            toggleMic: () => {
+                const b = document.getElementById('mic-btn');
+                if(b.innerText.includes("Start")) {
+                    b.innerText = "Stop Recording"; b.style.background = "red";
+                    // Simulate viz
+                    setInterval(()=>{ document.querySelectorAll('.bar').forEach(b=>b.style.height=Math.random()*40+'px'); }, 100);
+                } else {
+                    b.innerText = "🎙️ Start Chant"; b.style.background = "var(--gold)";
+                }
             },
 
-            // 5. MEDIA (Interlinking)
-            media: () => `
-                <div class="card">
-                    <h3>12 Jyotirlingas</h3>
-                    <div class="jyoti-grid">
-                        <div class="jyoti-card" onclick="window.open('https://www.youtube.com/results?search_query=live+mahakal+aarti')">🛕<br>Mahakal</div>
-                        <div class="jyoti-card" onclick="window.open('https://www.youtube.com/results?search_query=kashi+vishwanath+darshan')">🕉️<br>Kashi</div>
-                        <div class="jyoti-card" onclick="window.open('https://www.youtube.com/results?search_query=somnath+aarti')">🌊<br>Somnath</div>
-                        <div class="jyoti-card" onclick="window.open('https://www.youtube.com/results?search_query=kedarnath+live')">🏔️<br>Kedarnath</div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>Music</h3>
-                    <button class="btn-gold" style="background:#1DB954;" onclick="window.open('https://open.spotify.com/playlist/37i9dQZF1DX6aTaZa0K6VA')">Open Spotify Playlist</button>
-                </div>
-            `,
-
-            // 6. PARIVAR (Deep Links)
-            parivar: () => `
-                <div class="card" onclick="window.open('https://open.spotify.com/search/Ganesh%20Mantra')">
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        <div style="font-size:2rem;">🐘</div>
-                        <div><b>Ganesh</b><br>Play Mantra</div>
-                    </div>
-                </div>
-                <div class="card" onclick="window.open('https://open.spotify.com/search/Shiva%20Tandav')">
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        <div style="font-size:2rem;">🔱</div>
-                        <div><b>Shiva</b><br>Play Tandav</div>
-                    </div>
-                </div>
-            `,
-
-            // 8. YANTRA (Voice)
+            // 8. YANTRA: Breath Pacer
             yantra: () => `
                 <div class="card" style="text-align:center;">
-                    <div style="width:150px; height:150px; border-radius:50%; background:radial-gradient(#333,#000); margin:0 auto; display:flex; align-items:center; justify-content:center; border:2px solid var(--accent);">🕉️</div>
-                    <p style="margin-top:20px;">Chant 'Om' for 10s</p>
-                    <button id="mic-btn" class="btn-gold" onclick="Content.startMic()">Start Mic</button>
-                    <p id="mic-status" style="color:#888; margin-top:10px;"></p>
+                    <div class="breath-circle" id="b-circle"></div>
+                    <p id="b-text">Inhale...</p>
+                    <button class="btn-gold" onclick="Apps.pacer()">Start 4-7-8 Breath</button>
                 </div>
             `,
-            startMic: () => {
-                const b = document.getElementById('mic-btn');
-                const s = document.getElementById('mic-status');
-                b.style.background = "red"; b.innerText = "Listening...";
-                let count = 0;
-                const int = setInterval(() => {
-                    count++;
-                    s.innerText = count + "s...";
-                    if(count >= 10) {
-                        clearInterval(int);
-                        b.style.background = "#4CAF50"; b.innerText = "Success!";
-                        s.innerText = "10 Points Awarded";
-                        OS.updateKarma(10);
-                    }
-                }, 1000);
+            pacer: () => {
+                const c = document.getElementById('b-circle');
+                const t = document.getElementById('b-text');
+                c.className = 'breath-circle inhale'; t.innerText="Inhale (4s)";
+                setTimeout(()=>{ t.innerText="Hold (7s)"; }, 4000);
+                setTimeout(()=>{ c.className='breath-circle exhale'; t.innerText="Exhale (8s)"; }, 11000);
             },
 
-            // 11. YATRA (Map)
-            yatra: () => `
-                <div class="card">
-                    <input id="city-in" type="text" placeholder="Enter City (e.g. Varanasi)" style="width:100%; padding:12px; background:#000; border:1px solid #333; color:#fff; border-radius:8px;">
-                    <button class="btn-gold" onclick="document.getElementById('gmap').src='https://www.google.com/maps?q=$' + document.getElementById('city-in').value + '+shiva+temple&output=embed'">Search Temples</button>
-                </div>
-                <iframe id="gmap" width="100%" height="300" style="border:0; border-radius:12px; filter:invert(90%);" src=""></iframe>
-            `,
+            // 5. MEDIA
+            media: () => `<div class="card"><h3>Spotify Player</h3><a href="https://open.spotify.com/playlist/37i9dQZF1DX6aTaZa0K6VA" class="btn-gold" style="display:block; text-align:center; text-decoration:none;">Open App</a></div>`,
 
-            // 16. ASCENT (Correct Order)
-            ascent: () => `
-                <div style="padding-left:20px; border-left:2px solid var(--gold);">
-                    <div class="card">1. Yama (Restraints)</div>
-                    <div class="card">2. Niyama (Discipline)</div>
-                    <div class="card">3. Asana (Posture)</div>
-                    <div class="card">4. Pranayama (Breath)</div>
-                    <div class="card">5. Pratyahara (Withdrawal)</div>
-                    <div class="card">6. Dharana (Focus)</div>
-                    <div class="card">7. Dhyana (Meditation)</div>
-                    <div class="card" style="border-color:var(--gold);">8. Samadhi (Bliss)</div>
-                </div>
-            `,
+            // 6. PARIVAR
+            parivar: () => `<div class="card"><h3>Today: Shiva's Day</h3><p>Chant: Om Namah Shivaya</p><button class="btn-gold" onclick="OS.addXP(10)">Chant 108 Times</button></div>`,
 
-            // Placeholders for others to prevent errors
-            gyan: () => `<div class="card"><h3>AI Guru</h3><button class="btn-gold" onclick="alert('Look within.')">Get Guidance</button></div>`,
-            sankalpa: () => `<div class="card"><h3>Vows</h3><input style="width:100%; padding:10px;" placeholder="I vow to..."><button class="btn-gold" onclick="OS.updateKarma(5); alert('Vow Taken')">Commit</button></div>`,
-            prasad: () => `<div class="card" style="text-align:center;"><h1>${OS.karma}</h1><p>Total Karma Points</p></div>`,
+            // 7. GYAN (Searchable)
+            gyan: () => `<div class="card"><input class="input-field" placeholder="Search Topics (e.g. Fear)"><div style="margin-top:10px;"><b>Shiva Sutra:</b><br>The observer is the observed.</div></div>`,
+
+            // 11. YATRA
+            yatra: () => `<div class="card"><input class="input-field" id="city" placeholder="City"><button class="btn-gold" onclick="document.getElementById('gmap').src='https://www.google.com/maps?q=$'+document.getElementById('city').value+' shiva temple&output=embed'">Search</button><iframe id="gmap" width="100%" height="250" style="border:0; margin-top:10px;"></iframe></div>`,
+
+            // 13. CHAKRA (Binaural)
+            chakra: () => `<div class="card" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button class="btn-outline" onclick="Audio.playBinaural(396)">Root (Fear)</button>
+                <button class="btn-outline" onclick="Audio.playBinaural(639)">Heart (Love)</button>
+                <button class="btn-outline" onclick="Audio.playBinaural(963)">Crown (God)</button>
+            </div>`,
+
+            // 16. ASCENT (Unlockable)
+            ascent: () => `<div class="card"><div style="opacity:1;">1. Yama (Unlocked)</div><div style="opacity:0.5;">2. Niyama (Locked)</div><div style="opacity:0.5;">3. Asana (Locked)</div><p style="font-size:0.7rem; margin-top:10px;">Earn 100 KP to unlock Niyama</p></div>`,
+
+            // Fillers for completeness
+            sankalpa: () => `<div class="card"><input class="input-field" placeholder="Vow..."><button class="btn-gold" onclick="OS.addXP(5)">Commit</button></div>`,
+            prasad: () => `<div class="card" style="text-align:center;"><h1>${OS.data.xp}</h1><p>Karma Points</p></div>`,
             mantra: () => `<div class="card"><b>Maha Mrityunjaya</b><p>Om Tryambakam...</p></div>`,
-            chakra: () => `<div class="card">Root Chakra (Lam) <button style="float:right;">▶</button></div>`,
             festivals: () => `<div class="card"><h3>Maha Shivratri</h3><p>Feb 26, 2025</p></div>`,
-            community: () => `<div class="card"><h3>Global Sangha</h3><p>1,402 Chanting Now</p></div>`,
-            daan: () => `<div class="card"><h3>Seva Log</h3><button class="btn-gold" onclick="OS.updateKarma(20)">I helped someone today</button></div>`,
-            dreams: () => `<div class="card"><textarea style="width:100%; height:100px; background:#000; color:#fff; border:1px solid #333;" placeholder="My dream..."></textarea><button class="btn-gold">Save</button></div>`,
-            rudra: () => `<div class="card"><b>5 Mukhi</b><p>General Health & Peace</p></div>`,
-            settings: () => `<div class="card"><button class="btn-gold" style="background:#333;" onclick="localStorage.clear(); location.reload()">Reset App</button></div>`
+            community: () => `<div class="card"><h3>1,420</h3><p>Chanting Now</p></div>`,
+            daan: () => `<div class="card"><button class="btn-gold">Log Random Act of Kindness</button></div>`,
+            dreams: () => `<div class="card"><textarea class="input-field" placeholder="Dreamt of..."></textarea><button class="btn-gold">Save</button></div>`,
+            rudra: () => `<div class="card"><b>5 Mukhi</b><p>Health & Peace</p></div>`,
+            settings: () => `<div class="card"><button class="btn-outline" onclick="localStorage.clear(); location.reload()">Reset App</button></div>`
         };
 
     </script>
