@@ -27,27 +27,30 @@
             display: flex; flex-direction: column;
         }
 
-        /* --- 1. THE COSMIC GATE (FIXED VISIBILITY) --- */
+        /* --- 1. THE COSMIC GATE (FIXED) --- */
         #gate {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999;
             background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: transform 0.8s ease-in-out, opacity 0.8s;
+            transition: opacity 0.8s ease, transform 0.8s ease; cursor: pointer;
         }
+        /* Active state for instant feedback */
+        #gate:active .gate-mandala { border-color: #fff; box-shadow: 0 0 80px rgba(255,255,255,0.5); }
+        
         .gate-mandala {
             width: 200px; height: 200px; border: 2px solid var(--gold); border-radius: 50%;
             display: flex; align-items: center; justify-content: center; position: relative;
-            animation: spin 60s linear infinite; cursor: pointer;
+            animation: spin 60s linear infinite; pointer-events: none; /* Let clicks pass to parent */
             box-shadow: 0 0 60px rgba(255, 215, 0, 0.3); background: radial-gradient(circle, #222, #000);
         }
         .gate-mandala::before { content:''; position:absolute; inset:10px; border:1px dashed rgba(255,255,255,0.3); border-radius:50%; }
         .gate-icon { font-size: 5rem; animation: breathe 3s infinite; }
-        .gate-text { margin-top: 40px; font-family: 'Cinzel'; letter-spacing: 5px; color: var(--gold); font-size: 1rem; text-transform: uppercase; text-shadow: 0 0 10px var(--gold); }
+        .gate-text { margin-top: 40px; font-family: 'Cinzel'; letter-spacing: 5px; color: var(--gold); font-size: 1rem; text-transform: uppercase; text-shadow: 0 0 10px var(--gold); pointer-events: none; }
         
         @keyframes spin { 100%{transform:rotate(360deg);} }
         @keyframes breathe { 0%,100%{opacity:0.6; transform:scale(1);} 50%{opacity:1; transform:scale(1.1);} }
 
         /* --- 2. VIEWPORT --- */
-        #viewport { flex: 1; position: relative; overflow: hidden; }
+        #viewport { flex: 1; position: relative; overflow: hidden; opacity: 0; transition: opacity 1s ease; }
         .view {
             position: absolute; inset: 0; overflow-y: auto; padding: 20px; padding-bottom: calc(var(--nav-height) + 20px);
             display: none; opacity: 0; transform: scale(0.95); transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -63,6 +66,7 @@
         /* --- TAB 1: HOME --- */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
         .cal-day { padding: 12px 0; background: #111; border-radius: 8px; font-size: 0.85rem; color: #888; }
+        .cal-day.somvar { border: 1px solid #4CAF50; color: #4CAF50; font-weight: bold; }
         .cal-day.today { background: var(--gold); color: #000; font-weight: bold; }
         .timeline { border-left: 2px solid #333; margin-left: 10px; padding-left: 25px; margin-top: 20px; }
         .t-slot { margin-bottom: 30px; position: relative; }
@@ -122,7 +126,7 @@
 </head>
 <body>
 
-    <div id="gate" onclick="App.enter()">
+    <div id="gate" onclick="enterGate()">
         <div class="gate-mandala"><div class="gate-icon">🕉️</div></div>
         <p class="gate-text">TAP TO ENTER</p>
     </div>
@@ -148,3 +152,116 @@
                 <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;"><button class="btn-gold" onclick="Puja.pour()">Jal</button><button class="btn-glass" onclick="Audio.playBell()">🔔 Bell</button></div>
             </div>
         </div>
+
+        <div id="view-ahara" class="view">
+            <div class="card"><div class="card-h">Weekly Meal Plan</div><div class="week-scroll" id="diet-nav"></div><div id="diet-content"></div><button class="btn-gold" onclick="window.open('https://www.youtube.com/results?search_query=satvik+recipes','_blank')">Watch Recipes</button></div>
+        </div>
+
+        <div id="view-sadhana" class="view">
+            <div class="card"><div class="card-h">Mood Chakra</div><div class="mood-grid"><div class="mood-box" onclick="alert('Heal Root Chakra')">Fear</div><div class="mood-box" onclick="alert('Heal Sacral Chakra')">Guilt</div><div class="mood-box" onclick="alert('Heal Solar Chakra')">Weak</div><div class="mood-box" onclick="alert('Heal Heart Chakra')">Lonely</div></div></div>
+            <div class="card" style="text-align:center;"><div class="card-h" style="justify-content:center;">Japa Mala</div><div style="font-size:3rem; color:var(--gold);" id="jap-count">0</div><div class="bead-row" onclick="Japa.count()"><div class="bead"></div></div></div>
+        </div>
+
+        <div id="view-media" class="view">
+            <div class="card"><div class="card-h">Live Darshan</div><iframe width="100%" height="200" src="https://www.youtube.com/embed/live_stream?channel=UCt4t-jeY85JegXBZ8viGMfg" frameborder="0" style="border-radius:10px;"></iframe><p style="font-size:0.8rem; color:#aaa; margin-top:5px;">Mahakaleshwar</p></div>
+            <div class="card"><div class="card-h">Spotify</div><a href="https://open.spotify.com/playlist/37i9dQZF1DX6aTaZa0K6VA" target="_blank" class="btn-gold" style="display:block; text-align:center; text-decoration:none;">Open Chants</a></div>
+        </div>
+
+        <div id="view-parivar" class="view">
+            <div class="card"><div class="card-h">Divine Family</div><div id="fam-list"></div></div>
+        </div>
+
+        <div id="view-gyan" class="view">
+            <div class="card"><div class="card-h">Shiva AI</div><input type="text" id="ai-in" class="input-field" placeholder="I feel..."><button class="btn-gold" style="margin-top:10px;" onclick="AI.ask()">Get Guidance</button><div id="ai-out" style="margin-top:15px; padding:15px; background:#222; border-radius:10px; display:none; border-left:3px solid var(--gold);"></div></div>
+        </div>
+
+        <div id="view-yantra" class="view">
+            <div class="card" style="text-align:center; height:60vh; display:flex; flex-direction:column; justify-content:center;"><div class="card-h" style="justify-content:center;">Trataka</div><div style="width:200px; height:200px; margin:0 auto; background:conic-gradient(#333,#000,#333); border-radius:50%; animation:spin 20s linear infinite; border:2px solid var(--gold);"></div><p style="margin-top:20px;">Gaze Center.</p><style>@keyframes spin{100%{transform:rotate(360deg);}}</style></div>
+        </div>
+
+        <div id="view-sankalpa" class="view">
+            <div class="card"><div class="card-h">My Vow</div><input type="text" id="vow-in" class="input-field" placeholder="E.g. Chant 108 times"><button class="btn-gold" style="margin-top:10px;" onclick="Sankalpa.add()">Commit Vow</button><div id="vow-list" style="margin-top:20px;"></div></div>
+        </div>
+
+        <div id="view-prasad" class="view">
+            <div class="card"><div class="card-h">Stats</div><div style="display:flex; justify-content:space-between; padding:15px; background:#111; border-radius:10px;"><span>Total Chants</span><span style="color:var(--gold); font-size:1.2rem;" id="stat-chants">0</span></div></div>
+        </div>
+
+        <div id="view-yatra" class="view">
+            <div class="card"><div class="card-h">Temple Map</div><input type="text" id="city-in" class="input-field" placeholder="Enter City"><button class="btn-gold" onclick="Yatra.find()">Search</button><iframe id="gmap" width="100%" height="300" style="border:0; margin-top:15px; border-radius:10px; filter:invert(90%);" src=""></iframe></div>
+        </div>
+
+        <div id="view-ascent" class="view" style="padding:0;">
+            <div class="mountain-scroll"><div style="text-align:center; color:var(--gold); font-size:3rem; margin-top:50px;">ॐ</div><div class="step"><h3>7. Kaivalya</h3><p>Liberation.</p></div><div class="step"><h3>6. Samadhi</h3><p>Stillness.</p></div><div class="step"><h3>1. Yama</h3><p>Right Action.</p></div><div style="margin-top:50px; color:#aaa;">Scroll to Climb</div></div>
+        </div>
+    </div>
+
+    <div id="dock-container">
+        <div class="dock-scroll">
+            <div class="nav-item active" onclick="Nav.go('home', this)"><div class="nav-icon">📅</div>Home</div>
+            <div class="nav-item" onclick="Nav.go('sanctum', this)"><div class="nav-icon">🕉️</div>Sanctum</div>
+            <div class="nav-item" onclick="Nav.go('ahara', this)"><div class="nav-icon">🥗</div>Ahara</div>
+            <div class="nav-item" onclick="Nav.go('sadhana', this)"><div class="nav-icon">🧘</div>Sadhana</div>
+            <div class="nav-item" onclick="Nav.go('media', this)"><div class="nav-icon">🎧</div>Media</div>
+            <div class="nav-item" onclick="Nav.go('parivar', this)"><div class="nav-icon">👨‍👩‍👧</div>Parivar</div>
+            <div class="nav-item" onclick="Nav.go('gyan', this)"><div class="nav-icon">🧠</div>Gyan</div>
+            <div class="nav-item" onclick="Nav.go('yantra', this)"><div class="nav-icon">🧿</div>Yantra</div>
+            <div class="nav-item" onclick="Nav.go('sankalpa', this)"><div class="nav-icon">🎯</div>Vows</div>
+            <div class="nav-item" onclick="Nav.go('prasad', this)"><div class="nav-icon">🏆</div>Prasad</div>
+            <div class="nav-item" onclick="Nav.go('yatra', this)"><div class="nav-icon">📍</div>Yatra</div>
+            <div class="nav-item" onclick="Nav.go('ascent', this)"><div class="nav-icon">🏔️</div>Ascent</div>
+        </div>
+    </div>
+
+    <script>
+        // Crash Proof Init
+        let savedData; try { savedData=JSON.parse(localStorage.getItem('shiva_v33')); } catch(e){}
+        
+        const DB={
+            d: savedData || {c:0,v:[],f:{}},
+            save(){localStorage.setItem('shiva_v33',JSON.stringify(this.d)); this.render();},
+            render(){
+                document.getElementById('stat-chants').innerText=this.d.c;
+                const fl=document.getElementById('fam-list'); if(fl) fl.innerHTML="";
+                const fam=[{k:'shiva',n:'Shiva',i:'🔱'},{k:'ganesh',n:'Ganesh',i:'🐘'},{k:'parvati',n:'Parvati',i:'🌺'}];
+                if(fl) fam.forEach(f=>{
+                    fl.innerHTML += `<div style="display:flex; align-items:center; background:#111; padding:15px; margin-bottom:10px; border-radius:10px;">
+                        <div style="font-size:2rem; margin-right:15px;">${f.i}</div>
+                        <div style="flex:1;"><b>${f.n}</b><br><small style="color:gold;">Count: ${this.d.f[f.k]||0}</small></div>
+                        <button class="btn-glass" onclick="DB.incF('${f.k}')">+1</button>
+                    </div>`;
+                });
+                const vl=document.getElementById('vow-list'); if(vl) vl.innerHTML="";
+                if(vl) this.d.v.forEach(v=>{ vl.innerHTML+=`<div style="background:#111; padding:10px; margin-bottom:5px; border-radius:8px; border-left:3px solid gold;">${v}</div>`; });
+            },
+            inc(){this.d.c++; this.save();},
+            incF(k){this.d.f[k]=(this.d.f[k]||0)+1; this.inc();},
+            addV(t){this.d.v.push(t); this.save();}
+        };
+
+        function enterGate(){
+            document.getElementById('gate').style.transform="scale(5)";
+            document.getElementById('gate').style.opacity="0";
+            setTimeout(()=>{
+                document.getElementById('gate').style.display="none";
+                document.getElementById('viewport').style.opacity="1";
+                document.getElementById('view-home').classList.add('active');
+            },500);
+        }
+
+        const Nav={go(id,btn){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+id).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}};
+        
+        const Cal={m:new Date().getMonth(),y:new Date().getFullYear(),nav(d){this.m+=d;this.render();},render(){const dt=new Date(this.y,this.m,1);document.getElementById('cal-title').innerText=dt.toLocaleString('default',{month:'long'})+" "+dt.getFullYear();const g=document.getElementById('calendar');g.innerHTML="";for(let i=0;i<dt.getDay();i++)g.innerHTML+=`<div></div>`;for(let i=1;i<=new Date(this.y,this.m+1,0).getDate();i++){let c='cal-day';if(new Date(this.y,this.m,i).getDay()===1)c+=' somvar';g.innerHTML+=`<div class="${c}">${i}</div>`;}}};
+        const Ahara={init(){const d=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];const n=document.getElementById('diet-nav');const c=document.getElementById('diet-content');d.forEach((day,i)=>{n.innerHTML+=`<div class="day-pill ${i===new Date().getDay()?'active':''}" onclick="Ahara.load(${i},this)">${day}</div>`;});this.load(new Date().getDay());},load(i,el){if(el){document.querySelectorAll('.day-pill').forEach(b=>b.classList.remove('active'));el.classList.add('active');}const m=[["Poha","Rice","Soup"],["FRUIT/MILK","Sabudana","Fruit"],["Upma","Roti","Salad"],["Idli","Curd Rice","Milk"],["Paratha","Rajma","Khichdi"],["Dalia","Paneer","Soup"],["Cheela","Veg","Milk"]];document.getElementById('diet-content').innerHTML=`<div class="meal-row"><span>Morn</span><b>${m[i][0]}</b></div><div class="meal-row"><span>Noon</span><b>${m[i][1]}</b></div><div class="meal-row"><span>Night</span><b>${m[i][2]}</b></div>`;}};
+        
+        const Puja={pour(){const s=document.getElementById('stream');s.classList.add('on');Audio.playWater();setTimeout(()=>s.classList.remove('on'),2000);},light(){document.getElementById('flame').classList.toggle('lit');}};
+        const Japa={c:0,count(){this.c++;document.getElementById('jap-count').innerText=this.c;if(navigator.vibrate)navigator.vibrate(10);DB.inc();}};
+        const Audio={ctx:null,init(){if(!this.ctx)this.ctx=new(window.AudioContext||window.webkitAudioContext)();},playBell(){this.init();const o=this.ctx.createOscillator();const g=this.ctx.createGain();o.frequency.value=500;g.gain.exponentialRampToValueAtTime(0.001,this.ctx.currentTime+3);o.connect(g);g.connect(this.ctx.destination);o.start();o.stop(this.ctx.currentTime+3);},playWater(){}};
+        const AI={ask(){document.getElementById('ai-out').innerText="Look within. You are the silence.";document.getElementById('ai-out').style.display='block';}};
+        const Sankalpa={add(){const v=document.getElementById('vow-in').value;if(v){DB.addV(v);document.getElementById('vow-in').value="";}}};
+        const Yatra={find(){const c=document.getElementById('city-in').value;if(c)document.getElementById('gmap').src=`https://www.google.com/maps?q=${c}&output=embed`;}};
+        
+        Cal.render(); Ahara.init(); DB.render();
+    </script>
+</body>
+</html>
