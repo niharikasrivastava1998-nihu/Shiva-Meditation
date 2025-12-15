@@ -2,224 +2,317 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>ShivaOS: Turbo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ShivaOS: Nirvana</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Outfit', sans-serif; user-select: none; }
-        
-        /* --- LOADER (OPTIMIZED) --- */
-        #loader {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s;
-        }
-        .spinner {
-            width: 50px; height: 50px; border: 3px solid #333; border-top: 3px solid #FFD700;
-            border-radius: 50%; animation: spin 0.8s linear infinite;
-        }
-        .load-text { margin-top: 20px; color: #888; font-size: 0.8rem; letter-spacing: 2px; font-family: monospace; }
-        .progress-bar { width: 200px; height: 4px; background: #222; margin-top: 10px; border-radius: 2px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #FFD700; width: 0%; transition: width 0.1s; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@300;500;700&display=swap');
 
-        /* --- HUD --- */
-        #hud { position: fixed; inset: 0; pointer-events: none; z-index: 10; display: flex; flex-direction: column; opacity: 0; transition: opacity 1s; }
+        :root {
+            --gold: #FFD700;
+            --orange: #FF9800;
+            --glass: rgba(10, 10, 12, 0.85);
+            --border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Outfit', sans-serif; user-select: none; color: white; }
+
+        /* --- LAYERS --- */
+        #canvas-layer { position: fixed; inset: 0; z-index: 0; transition: filter 0.5s; } /* 3D World */
+        #ui-layer { position: fixed; inset: 0; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
         
-        .status-bar {
-            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+        /* --- HUD --- */
+        .top-bar {
+            pointer-events: auto; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
             background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
         }
-        .karma-badge {
-            background: rgba(255, 215, 0, 0.1); border: 1px solid #FFD700; color: #FFD700;
-            padding: 5px 15px; border-radius: 20px; font-weight: bold; backdrop-filter: blur(5px);
-            pointer-events: auto;
+        .xp-pill {
+            background: rgba(255, 215, 0, 0.1); border: 1px solid var(--gold); padding: 5px 15px; 
+            border-radius: 20px; font-weight: bold; color: var(--gold); display: flex; gap: 5px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); backdrop-filter: blur(5px);
         }
 
-        /* --- DOCK --- */
+        /* --- DOCK (Navigation) --- */
         .dock-container {
-            pointer-events: auto; background: linear-gradient(to top, rgba(0,0,0,1), transparent);
-            padding: 20px 0; overflow-x: auto; display: flex; justify-content: center;
+            pointer-events: auto; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,1), transparent);
+            overflow-x: auto; white-space: nowrap; display: flex; justify-content: center; gap: 15px;
         }
-        .dock-scroll { display: flex; gap: 15px; padding: 0 20px; }
-        .dock-btn {
-            width: 60px; height: 60px; background: rgba(30,30,30,0.8); border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0;
+        .dock-icon {
+            width: 65px; height: 65px; background: var(--glass); border-radius: 18px; border: var(--border);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 0.2s; cursor: pointer; flex-shrink: 0; position: relative; overflow: hidden;
         }
-        .dock-btn.active { background: #FFD700; color: #000; transform: translateY(-10px); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
-        .btn-icon { font-size: 1.5rem; margin-bottom: 2px; }
-        .btn-lbl { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; }
+        .dock-icon.active { background: rgba(255, 215, 0, 0.2); border-color: var(--gold); transform: translateY(-10px); }
+        .dock-icon span { font-size: 1.8rem; margin-bottom: 2px; }
+        .dock-icon label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; color: #aaa; }
 
-        /* --- PROMPT --- */
-        #prompt {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8); border: 1px solid #444; padding: 10px 20px;
-            border-radius: 30px; color: #fff; pointer-events: none; opacity: 0; transition: opacity 0.3s;
+        /* --- INTERACTION OVERLAYS (2D Content inside 3D) --- */
+        .overlay-panel {
+            position: absolute; top: 80px; left: 20px; right: 20px; bottom: 120px;
+            background: rgba(15, 15, 20, 0.95); border: 1px solid #333; border-radius: 20px;
+            display: none; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: auto; backdrop-filter: blur(20px); box-shadow: 0 20px 50px #000;
         }
+        .panel-header { padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .panel-title { font-family: 'Cinzel'; font-size: 1.2rem; color: var(--gold); }
+        .close-btn { font-size: 1.5rem; cursor: pointer; color: #666; }
+        .panel-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* --- COMPONENTS --- */
+        .card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .btn-gold { width: 100%; padding: 14px; background: var(--gold); border: none; border-radius: 12px; font-weight: bold; color: #000; margin-top: 10px; cursor: pointer; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .cal-day { padding: 10px 0; background: #222; text-align: center; border-radius: 5px; font-size: 0.8rem; color: #888; }
+        .cal-day.active { background: var(--orange); color: #000; font-weight: bold; }
+
+        /* --- LOADER --- */
+        #loader { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
+        .loading-ring { width: 50px; height: 50px; border: 3px solid #333; border-top: 3px solid var(--gold); border-radius: 50%; animation: spin 1s infinite linear; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
     </style>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
+    <div id="canvas-layer"></div>
+
     <div id="loader">
-        <div class="spinner"></div>
-        <div class="load-text" id="load-status">INITIALIZING...</div>
-        <div class="progress-bar"><div class="progress-fill" id="load-bar"></div></div>
+        <div class="loading-ring"></div>
+        <p style="margin-top:20px; letter-spacing:2px; font-size:0.8rem; color:#666;">ENTERING KAILASH...</p>
     </div>
 
-    <div id="canvas-container" style="position:fixed; inset:0; z-index:0;"></div>
-
-    <div id="hud">
-        <div class="status-bar">
-            <div style="font-weight:bold; color:#888;">SHIVA OS</div>
-            <div class="karma-badge">🕉️ <span id="xp">108</span></div>
+    <div id="ui-layer">
+        <div class="top-bar">
+            <div style="font-family:'Cinzel'; font-weight:bold;">SHIVA OS</div>
+            <div class="xp-pill" onclick="alert('Current Level: Sadhaka')">🕉️ <span id="xp">108</span></div>
         </div>
-        <div id="prompt">Welcome</div>
+
+        <div id="overlay-panel" class="overlay-panel">
+            <div class="panel-header">
+                <span class="panel-title" id="p-title">Title</span>
+                <span class="close-btn" onclick="UI.closePanel()">✕</span>
+            </div>
+            <div class="panel-body" id="p-content"></div>
+        </div>
+
         <div class="dock-container">
-            <div class="dock-scroll" id="dock"></div>
+            <div class="dock-icon active" onclick="World.flyTo('sanctum')"><span>🛕</span><label>Sanctum</label></div>
+            <div class="dock-icon" onclick="World.flyTo('sadhana')"><span>📿</span><label>Sadhana</label></div>
+            <div class="dock-icon" onclick="World.flyTo('yatra')"><span>🗺️</span><label>Yatra</label></div>
+            <div class="dock-icon" onclick="World.flyTo('ascent')"><span>🏔️</span><label>Ascent</label></div>
+            <div class="dock-icon" onclick="UI.open('panchang')"><span>📅</span><label>Panchang</label></div>
+            <div class="dock-icon" onclick="UI.open('media')"><span>🎧</span><label>Media</label></div>
+            <div class="dock-icon" onclick="UI.open('ahara')"><span>🥗</span><label>Ahara</label></div>
+            <div class="dock-icon" onclick="UI.open('settings')"><span>⚙️</span><label>Settings</label></div>
         </div>
     </div>
 
     <script>
-        /* --- OPTIMIZED LOADING SEQUENCE --- */
-        window.addEventListener('load', () => {
-            // Check if Three.js loaded
-            const check = setInterval(() => {
-                if (window.THREE && window.gsap) {
-                    clearInterval(check);
-                    Engine.init();
-                }
-            }, 100);
-        });
-
+        /* --- 1. CORE ENGINE (Optimized) --- */
         const Engine = {
-            scene: null, camera: null, renderer: null,
+            scene: new THREE.Scene(),
+            camera: new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000),
+            renderer: new THREE.WebGLRenderer({antialias: true, alpha: true}),
+            raycaster: new THREE.Raycaster(),
+            mouse: new THREE.Vector2(),
             
-            async init() {
-                const updateLoad = (txt, pct) => {
-                    document.getElementById('load-status').innerText = txt;
-                    document.getElementById('load-bar').style.width = pct + '%';
-                };
-
-                updateLoad("STARTING ENGINE...", 10);
-
-                // 1. Setup Scene
-                this.scene = new THREE.Scene();
-                this.scene.fog = new THREE.FogExp2(0x000000, 0.02);
-                this.camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 500);
-                this.renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: "high-performance"});
+            init() {
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
-                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio for speed
-                document.getElementById('canvas-container').appendChild(this.renderer.domElement);
-
-                updateLoad("LIGHTING...", 30);
-                const amb = new THREE.AmbientLight(0xffffff, 0.5);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                document.getElementById('canvas-layer').appendChild(this.renderer.domElement);
+                
+                // Lights
+                const amb = new THREE.AmbientLight(0xffffff, 0.4);
                 const dir = new THREE.DirectionalLight(0xffd700, 1.5);
-                dir.position.set(10, 20, 10);
+                dir.position.set(5, 10, 5);
                 this.scene.add(amb, dir);
 
-                // 2. Build World (Sequential to prevent freeze)
-                const zones = World.zones;
-                const total = zones.length;
-                
-                for (let i = 0; i < total; i++) {
-                    await new Promise(r => setTimeout(r, 20)); // Breathe frame
-                    World.buildZone(zones[i]);
-                    updateLoad(`BUILDING ${zones[i].n.toUpperCase()}...`, 30 + ((i/total)*60));
-                }
+                // Sky (Procedural Stars)
+                this.createStars();
 
-                updateLoad("AWAKENING...", 100);
+                // Load World Zones
+                World.init();
+
+                // Camera Start
+                this.camera.position.set(0, 3, 8);
                 
-                // 3. Render Loop
-                this.camera.position.set(0, 3, 10);
+                // Start Loop
                 this.animate();
 
-                // 4. UI Transition
+                // Interaction
+                window.addEventListener('resize', this.onResize.bind(this));
+                window.addEventListener('pointerdown', this.onClick.bind(this));
+
+                // Hide Loader
                 setTimeout(() => {
                     document.getElementById('loader').style.opacity = 0;
-                    document.getElementById('hud').style.opacity = 1;
-                    setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-                }, 500);
+                    setTimeout(()=>document.getElementById('loader').style.display='none', 500);
+                }, 1000);
+            },
 
-                // 5. Build Dock
-                World.renderDock();
+            createStars() {
+                const geo = new THREE.BufferGeometry();
+                const pos = new Float32Array(2000 * 3);
+                for(let i=0; i<2000*3; i++) pos[i] = (Math.random()-0.5)*100;
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                const mat = new THREE.PointsMaterial({color:0xffffff, size:0.05, transparent:true});
+                this.scene.add(new THREE.Points(geo, mat));
+            },
+
+            onClick(e) {
+                // Raycasting for 3D clicks
+                this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                this.raycaster.setFromCamera(this.mouse, this.camera);
+                const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+                if(intersects.length > 0) {
+                    let obj = intersects[0].object;
+                    while(obj.parent && !obj.userData.onClick) obj = obj.parent; // Traverse up
+                    if(obj.userData.onClick) obj.userData.onClick();
+                }
+            },
+
+            onResize() {
+                this.camera.aspect = window.innerWidth/window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
             },
 
             animate() {
                 requestAnimationFrame(this.animate.bind(this));
-                // Minimal animation for performance
+                // Idle animations
+                this.scene.children.forEach(c => {
+                    if(c.userData.rotate) c.rotation.y += 0.005;
+                    if(c.userData.float) c.position.y += Math.sin(Date.now()*0.001 + c.id)*0.002;
+                });
                 this.renderer.render(this.scene, this.camera);
+            }
+        };
+
+        /* --- 2. THE 3D WORLD ZONES --- */
+        const World = {
+            zones: {
+                sanctum: {pos:{x:0, y:0, z:0}, look:{x:0, y:1, z:0}},
+                sadhana: {pos:{x:-15, y:0, z:0}, look:{x:-15, y:1, z:0}},
+                yatra: {pos:{x:15, y:0, z:0}, look:{x:15, y:0, z:0}},
+                ascent: {pos:{x:0, y:15, z:0}, look:{x:0, y:15, z:0}}
             },
 
-            moveTo(pos) {
-                gsap.to(this.camera.position, {
-                    x: pos.x, y: pos.y + 3, z: pos.z + 8,
-                    duration: 1.2,
-                    ease: "power2.inOut",
-                    onUpdate: () => this.camera.lookAt(pos.x, pos.y+1, pos.z)
+            init() {
+                // 1. SANCTUM (Center)
+                const sGroup = new THREE.Group();
+                // Floor
+                const floor = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 0.2, 32), new THREE.MeshStandardMaterial({color:0x222222}));
+                floor.position.y = -0.1;
+                sGroup.add(floor);
+                // Shivling
+                const ling = new THREE.Mesh(new THREE.CapsuleGeometry(0.5, 1.5, 4, 16), new THREE.MeshStandardMaterial({color:0x111111, roughness:0.2}));
+                ling.position.y = 0.8;
+                ling.userData = { onClick: () => Game.action('Chanted Om', 5) };
+                sGroup.add(ling);
+                // Bell
+                const bell = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.5, 16, 1, true), new THREE.MeshStandardMaterial({color:0xFFD700, metalness:0.8}));
+                bell.position.set(-1.5, 3, 0);
+                bell.userData = { onClick: () => { Game.action('Bell Rung', 2); gsap.to(bell.rotation, {x:0.5, yoyo:true, repeat:3, duration:0.1}); }};
+                sGroup.add(bell);
+                Engine.scene.add(sGroup);
+
+                // 2. SADHANA (Left)
+                const mGroup = new THREE.Group();
+                mGroup.position.set(-15, 0, 0);
+                // Beads Ring
+                for(let i=0; i<16; i++) {
+                    const bead = new THREE.Mesh(new THREE.SphereGeometry(0.25), new THREE.MeshStandardMaterial({color:0x8B4513}));
+                    const angle = (i/16) * Math.PI*2;
+                    bead.position.set(Math.cos(angle)*2.5, Math.sin(angle)*2.5 + 2, 0);
+                    bead.userData = { onClick: () => { Game.action('Bead Pulled', 1); gsap.to(mGroup.rotation, {z:mGroup.rotation.z + (Math.PI/8)}); }};
+                    mGroup.add(bead);
+                }
+                Engine.scene.add(mGroup);
+
+                // 3. YATRA (Right)
+                const yGroup = new THREE.Group();
+                yGroup.position.set(15, 0, 0);
+                const map = new THREE.Mesh(new THREE.BoxGeometry(6, 0.2, 4), new THREE.MeshStandardMaterial({color:0x334455}));
+                map.position.y = 0.5;
+                yGroup.add(map);
+                // Pins
+                [0, 1, -1].forEach(i => {
+                    const pin = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 8), new THREE.MeshStandardMaterial({color:0xFFD700, emissive:0xFFD700}));
+                    pin.position.set(i*1.5, 1, (Math.random()-0.5));
+                    pin.userData = { float:true, onClick: () => Game.action('Jyotirlinga Found', 20) };
+                    yGroup.add(pin);
+                });
+                Engine.scene.add(yGroup);
+
+                // 4. ASCENT (Up)
+                const aGroup = new THREE.Group();
+                aGroup.position.set(0, 15, 0);
+                const mount = new THREE.Mesh(new THREE.ConeGeometry(5, 10, 4), new THREE.MeshStandardMaterial({color:0x444444, flatShading:true}));
+                mount.position.y = 2;
+                aGroup.add(mount);
+                Engine.scene.add(aGroup);
+            },
+
+            flyTo(zoneId) {
+                // Update Dock UI
+                document.querySelectorAll('.dock-icon').forEach(el => el.classList.remove('active'));
+                
+                // Hide 2D Panel
+                UI.closePanel();
+
+                const z = this.zones[zoneId];
+                if (!z) return;
+
+                // Move Camera
+                gsap.to(Engine.camera.position, {
+                    x: z.pos.x, y: z.pos.y + 3, z: z.pos.z + 8,
+                    duration: 1.5, ease: "power2.inOut",
+                    onUpdate: () => Engine.camera.lookAt(z.look.x, z.look.y, z.look.z)
                 });
             }
         };
 
-        const World = {
-            zones: [
-                {id:'sanctum', n:'Sanctum', i:'🛕', x:0, z:0, col:0x333333},
-                {id:'sadhana', n:'Sadhana', i:'📿', x:-15, z:0, col:0x5d4037},
-                {id:'yatra', n:'Yatra', i:'🗺️', x:15, z:0, col:0x224466},
-                {id:'ascent', n:'Ascent', i:'🏔️', x:0, z:-15, col:0x444444},
-                {id:'panchang', n:'Panchang', i:'📅', x:0, z:15, col:0xFFA726},
-                // Add more zones virtually
-            ],
-
-            buildZone(z) {
-                const g = new THREE.Group();
-                g.position.set(z.x, 0, z.z);
-
-                // Base Platform (Low Poly)
-                const plat = new THREE.Mesh(
-                    new THREE.CylinderGeometry(3, 3, 0.2, 16), // Reduced segments
-                    new THREE.MeshStandardMaterial({color: z.col})
-                );
-                g.add(plat);
-
-                // Content Placeholder (Low Poly)
-                let content;
-                if(z.id === 'sanctum') content = new THREE.Mesh(new THREE.CapsuleGeometry(0.5, 1, 4, 8), new THREE.MeshStandardMaterial({color:0x111})); // Lingam
-                else if(z.id === 'sadhana') content = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.1, 8, 16), new THREE.MeshStandardMaterial({color:0x8B4513})); // Mala
-                else content = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({color:0xFFD700, wireframe:true}));
-                
-                content.position.y = 1;
-                g.add(content);
-                Engine.scene.add(g);
+        /* --- 3. UI & 2D CONTENT --- */
+        const UI = {
+            open(appId) {
+                const content = Content[appId] ? Content[appId]() : `<p>Loading ${appId}...</p>`;
+                document.getElementById('p-title').innerText = appId.toUpperCase();
+                document.getElementById('p-content').innerHTML = content;
+                document.getElementById('overlay-panel').style.display = 'flex';
             },
-
-            renderDock() {
-                const d = document.getElementById('dock');
-                d.innerHTML = this.zones.map(z => `
-                    <div class="dock-btn" onclick="World.go('${z.id}')">
-                        <div class="btn-icon">${z.i}</div><div class="btn-lbl">${z.n}</div>
-                    </div>
-                `).join('');
-                // Add placeholders for the rest of 19 tabs
-                const others = ['Ahara','Media','Parivar','Gyan','Yantra','Mantra','Sankalpa','Prasad','Chakra','Utsav','Daan','Dreams','Rudra','Settings'];
-                d.innerHTML += others.map(n => `
-                    <div class="dock-btn" onclick="alert('${n} Coming Soon in 3D')">
-                        <div class="btn-icon">✨</div><div class="btn-lbl">${n}</div>
-                    </div>
-                `).join('');
-            },
-
-            go(id) {
-                const z = this.zones.find(z => z.id === id);
-                Engine.moveTo({x:z.x, y:0, z:z.z});
-                
-                const p = document.getElementById('prompt');
-                p.innerText = z.n; p.style.opacity = 1;
-                setTimeout(()=>p.style.opacity=0, 2000);
+            closePanel() {
+                document.getElementById('overlay-panel').style.display = 'none';
             }
         };
+
+        const Content = {
+            panchang: () => {
+                let d = ''; for(let i=1;i<=30;i++) d+=`<div class="cal-day ${i===14?'active':''}" onclick="Game.action('Check Day',1)">${i}</div>`;
+                return `<div class="card"><h3>December 2025</h3><div class="cal-grid">${d}</div></div><button class="btn-gold" onclick="alert('Alarm Set');Game.action('Alarm',5)">⏰ Set Alarm</button>`;
+            },
+            ahara: () => `<div class="card"><h3>Satvik Menu</h3><div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;"><span>Breakfast</span><span>Fruit & Milk</span></div><div style="display:flex; justify-content:space-between; padding:10px;"><span>Dinner</span><span>Khichdi</span></div></div><button class="btn-gold" onclick="window.open('https://youtube.com/results?search_query=satvik+recipes')">Watch Recipes</button>`,
+            media: () => `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${['Aarti','Mantra','Meditation','Flute'].map(t=>`<div class="card" style="text-align:center; cursor:pointer;" onclick="window.open('https://youtube.com/results?search_query=shiva+${t}')">🎵<br>${t}</div>`).join('')}</div>`,
+            settings: () => `<div class="card"><h3>Preferences</h3><button class="btn-gold" style="background:#333; color:#fff;" onclick="localStorage.clear(); location.reload()">Reset All Data</button></div>`
+        };
+
+        /* --- 4. GAME STATE --- */
+        const Game = {
+            xp: 108,
+            action(name, points) {
+                this.xp += points;
+                document.getElementById('xp').innerText = this.xp;
+                confetti({ particleCount: 30, spread: 60, origin: { y: 0.8 }, colors:['#FFD700'] });
+            }
+        };
+
+        // Initialize
+        window.addEventListener('load', Engine.init.bind(Engine));
+
     </script>
 </body>
 </html>
