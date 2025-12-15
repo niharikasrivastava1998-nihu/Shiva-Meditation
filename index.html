@@ -2,354 +2,375 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ShivaOS: Pure</title>
-    <meta name="theme-color" content="#000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ShivaOS: 3D Sanctum</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@300;500;700&display=swap');
-
-        :root {
-            --bg: #050505;
-            --glass: rgba(20, 20, 25, 0.95);
-            --gold: #FFD700;
-            --orange: #FF9800; /* For Panchang */
-            --rudra: #ff4444;
-            --chakra: #00e5ff;
-            --text: #ffffff;
-            --nav-height: 85px;
-            --safe-top: env(safe-area-inset-top);
-            --safe-bottom: env(safe-area-inset-bottom);
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Cinzel', serif; user-select: none; }
+        
+        /* UI OVERLAY */
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+            display: flex; flex-direction: column; justify-content: space-between; padding: 20px;
         }
+        
+        .hud-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .karma-box { 
+            background: rgba(20, 20, 30, 0.8); border: 1px solid #FFD700; 
+            padding: 10px 20px; border-radius: 30px; color: #FFD700; 
+            backdrop-filter: blur(10px); pointer-events: auto;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+        
+        .controls { pointer-events: auto; display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }
+        .btn-action {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff; padding: 12px 24px; border-radius: 50px; cursor: pointer;
+            font-family: 'Cinzel', serif; text-transform: uppercase; font-weight: bold;
+            transition: 0.3s; backdrop-filter: blur(5px);
+        }
+        .btn-action:active { background: #FFD700; color: #000; transform: scale(0.95); }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Outfit', sans-serif; height: 100vh; overflow: hidden; }
-
-        /* --- ENTRY GATE --- */
-        #gate {
-            position: fixed; inset: 0; z-index: 9999; background: #000;
+        /* LOADING SCREEN */
+        #loader {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1s; cursor: pointer;
+            transition: opacity 1s;
         }
-        .earth-btn {
-            width: 140px; height: 140px; border-radius: 50%;
-            background: url('https://www.transparenttextures.com/patterns/stardust.png'), radial-gradient(circle at 30% 30%, #4facfe, #000);
-            box-shadow: 0 0 80px rgba(79, 172, 254, 0.4); animation: float 6s ease-in-out infinite;
-            display: flex; align-items: center; justify-content: center; font-size: 4rem;
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid #333; border-top: 3px solid #FFD700;
+            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;
         }
-        @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
-
-        /* --- OS SHELL --- */
-        #os-ui { opacity: 0; transition: opacity 1s; height: 100%; display: flex; flex-direction: column; background: linear-gradient(to bottom, #100c14, #000); }
-        
-        .status-bar {
-            height: calc(30px + var(--safe-top)); padding-top: var(--safe-top);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
-            background: rgba(255,255,255,0.05); font-size: 0.8rem;
-        }
-
-        #home-screen {
-            flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 100px;
-            display: grid; grid-template-columns: repeat(4, 1fr); align-content: flex-start; gap: 20px 10px;
-        }
-        
-        .app-icon { display: flex; flex-direction: column; align-items: center; gap: 6px; animation: popIn 0.5s forwards; opacity: 0; transform: scale(0.5); }
-        .icon-box {
-            width: 64px; height: 64px; border-radius: 18px; background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center; font-size: 2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s;
-        }
-        .icon-box:active { transform: scale(0.9); }
-        .icon-lbl { font-size: 0.7rem; color: #ddd; font-weight: 500; }
-        @keyframes popIn { to { opacity: 1; transform: scale(1); } }
-
-        /* --- APP WINDOW --- */
-        #app-window {
-            position: fixed; inset: 0; background: #050505; z-index: 500; transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
-        }
-        #app-window.open { transform: translateY(0); }
-        
-        .app-header {
-            height: calc(60px + var(--safe-top)); padding-top: var(--safe-top);
-            display: flex; align-items: center; padding-left: 15px; border-bottom: 1px solid #222;
-            background: rgba(20,20,20,0.98);
-        }
-        .win-body { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
-
-        /* --- COMPONENTS --- */
-        .card { background: #111; border: 1px solid #222; border-radius: 16px; padding: 20px; margin-bottom: 15px; position: relative; }
-        .card-h { font-family: 'Cinzel'; color: var(--gold); font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
-        .btn-gold { width: 100%; padding: 14px; background: var(--gold); border: none; border-radius: 12px; color: #000; font-weight: bold; margin-top: 10px; cursor: pointer; }
-        .btn-glass { padding: 8px 16px; background: rgba(255,255,255,0.1); border-radius: 20px; font-size: 0.8rem; cursor: pointer; color: #ccc; border: 1px solid #333; }
-        .input-field { width: 100%; padding: 12px; background: #222; border: 1px solid #333; color: #fff; border-radius: 10px; }
-
-        /* 1. PANCHANG (Orange/Gold Theme) */
-        .panchang-card { background: linear-gradient(135deg, #2a1a00, #000); border: 1px solid var(--orange); }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .cal-day { padding: 12px 0; background: #1a1a1a; border-radius: 8px; text-align: center; font-size: 0.8rem; color: #888; position: relative; }
-        .cal-day.today { background: linear-gradient(135deg, var(--orange), var(--gold)); color: #000; font-weight: bold; box-shadow: 0 0 15px rgba(255,152,0,0.4); }
-        
-        /* 6. SANCTUM (Gate) */
-        .temple-door {
-            position: absolute; top: 0; bottom: 0; width: 50%; background: #3e2723; border: 2px solid #5d4037;
-            z-index: 100; transition: transform 2s ease-in-out; display: flex; align-items: center; justify-content: center;
-        }
-        .door-left { left: 0; transform-origin: left; border-right: 2px solid #000; }
-        .door-right { right: 0; transform-origin: right; border-left: 2px solid #000; }
-        .sanctum-open .door-left { transform: perspective(1000px) rotateY(-80deg); }
-        .sanctum-open .door-right { transform: perspective(1000px) rotateY(80deg); }
-        .shivling-3d { width: 120px; height: 180px; background: radial-gradient(circle at 30% 30%, #444, #000); border-radius: 60px 60px 30px 30px; margin: 0 auto; }
-
-        /* 4. CHAKRA (Body) */
-        .body-outline { width: 120px; height: 300px; margin: 0 auto; background: rgba(255,255,255,0.05); border-radius: 60px 60px 40px 40px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; }
-        .chakra-node { width: 25px; height: 25px; border-radius: 50%; box-shadow: 0 0 15px currentColor; cursor: pointer; transition: 0.3s; }
-        .chakra-node:active { transform: scale(1.5); }
-
-        /* 12. YATRA (Map) */
-        .map-box { height: 350px; background: #111; position: relative; border-radius: 12px; border: 1px solid #333; overflow: hidden; }
-        .jyoti-dot { width: 12px; height: 12px; background: var(--gold); border-radius: 50%; position: absolute; box-shadow: 0 0 15px var(--gold); cursor: pointer; animation: pulse 2s infinite; }
-        
-        /* 14. RUDRAKSHA (Mala) */
-        .mala-container { overflow: hidden; height: 120px; display: flex; align-items: center; justify-content: center; }
-        .bead-string { display: flex; gap: 5px; transition: transform 0.2s; }
-        .bead { width: 50px; height: 50px; background: radial-gradient(circle, #8B4513, #3e1e05); border-radius: 50%; border: 1px solid #5e3a18; }
-
-        /* 18. ASCENT (Mountain) */
-        .mountain-path { border-left: 4px dashed #333; margin-left: 30px; position: relative; height: 450px; }
-        .asc-stage { position: absolute; left: -12px; padding-left: 30px; cursor: pointer; transition: 0.3s; }
-        .asc-node { width: 20px; height: 20px; background: #333; border-radius: 50%; position: absolute; left: 0; border: 2px solid #555; }
-        .asc-stage.active .asc-node { background: var(--gold); box-shadow: 0 0 15px var(--gold); }
-
-        @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(255,215,0,0.7);} 70%{box-shadow:0 0 0 10px rgba(255,215,0,0);} }
-
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
 </head>
 <body>
 
-    <div id="gate" onclick="OS.boot()">
-        <div class="earth-btn">🌍</div>
-        <p style="margin-top:30px; font-family:'Cinzel'; letter-spacing:4px; color:#aaa;">TAP TO ENTER</p>
+    <div id="loader">
+        <div class="spinner"></div>
+        <div style="color: #666; letter-spacing: 3px;">ENTERING SANCTUM...</div>
     </div>
 
-    <div id="os-ui">
-        <div class="status-bar">
-            <div id="clock">12:00</div>
-            <div style="color:var(--gold);">🕉️ <span id="karma-pts">0</span></div>
+    <div id="ui-layer">
+        <div class="hud-top">
+            <div style="color: rgba(255,255,255,0.5);">LVL 1: SEEKER</div>
+            <div class="karma-box">🕉️ <span id="score">0</span></div>
         </div>
-        <div id="home-screen"></div>
-    </div>
-
-    <div id="app-window">
-        <div class="app-header">
-            <div onclick="OS.close()" style="font-size:1.5rem; padding:10px; cursor:pointer; color:var(--gold);">❮</div>
-            <div id="win-title" style="flex:1; text-align:center; font-family:'Cinzel'; font-weight:700;"></div>
-            <div style="width:40px;"></div>
+        <div class="controls">
+            <button class="btn-action" onclick="Game.resetView()">Reset View</button>
+            <button class="btn-action" onclick="Game.toggleAudio()">🔇 / 🔊</button>
         </div>
-        <div class="win-body" id="win-content"></div>
     </div>
 
-    <script>
-        const OS = {
-            xp: parseInt(localStorage.getItem('shiva_xp') || 0),
-            
-            boot() {
-                document.getElementById('gate').style.opacity = 0;
-                setTimeout(() => {
-                    document.getElementById('gate').style.display = 'none';
-                    document.getElementById('os-ui').style.opacity = 1;
-                    this.renderGrid();
-                    setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 1000);
-                }, 800);
-            },
+    <div id="world"></div>
 
-            // 19 APPS (Sangha Removed)
-            apps: [
-                {id:'panchang', n:'Panchang', i:'📅', c:'#FFA726'}, // 1. Orange
-                {id:'sanctum', n:'Sanctum', i:'🛕', c:'#FFD54F'}, // 6. Temple
-                {id:'ahara', n:'Ahara', i:'🥗', c:'#81C784'}, // 10. Food
-                {id:'sadhana', n:'Sadhana', i:'🔥', c:'#FF8A65'}, // 15. Tools
-                {id:'media', n:'Media', i:'🎧', c:'#FF5252'}, // 2. Media
-                {id:'parivar', n:'Parivar', i:'👪', c:'#BA68C8'}, // 7. Family
-                {id:'gyan', n:'Gyan', i:'🧠', c:'#64B5F6'}, // 11. Wisdom
-                {id:'yantra', n:'Yantra', i:'🧿', c:'#4FC3F7'}, // 16. Focus
-                {id:'sankalpa', n:'Sankalpa', i:'📜', c:'#A1887F'}, // 3. Vows
-                {id:'prasad', n:'Prasad', i:'🏆', c:'#F06292'}, // Stats
-                {id:'yatra', n:'Yatra', i:'📍', c:'#DCE775'}, // 12. Map
-                {id:'mantra', n:'Mantra', i:'🗣️', c:'#90A4AE'}, // 17. Mantra
-                {id:'chakra', n:'Chakra', i:'🧘', c:'#7986CB'}, // 4. Chakra
-                {id:'festivals', n:'Utsav', i:'🎉', c:'#FFD700'}, // 8. Utsav
-                {id:'rudra', n:'Rudraksha', i:'📿', c:'#8D6E63'}, // 14. Mala
-                {id:'ascent', n:'Ascent', i:'🏔️', c:'#9575CD'}, // 18. Game
-                {id:'daan', n:'Daan', i:'🤲', c:'#AED581'}, // 5. Donate
-                {id:'dreams', n:'Dreams', i:'✨', c:'#4DD0E1'}, // 9. Dreams
-                {id:'settings', n:'Settings', i:'⚙️', c:'#E0E0E0'} // 19. Settings
-            ],
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-            renderGrid() {
-                const h = document.getElementById('home-screen');
-                h.innerHTML = this.apps.map((a, i) => `
-                    <div class="app-icon" style="animation-delay:${i*0.03}s" onclick="OS.open('${a.id}')">
-                        <div class="icon-box" style="color:${a.c}; border-color:${a.c}44;">${a.i}</div>
-                        <div class="icon-lbl">${a.n}</div>
-                    </div>
-                `).join('');
-                document.getElementById('karma-pts').innerText = this.xp;
-            },
-
-            open(id) {
-                document.getElementById('win-title').innerText = this.apps.find(a=>a.id===id).n;
-                document.getElementById('win-content').innerHTML = Apps[id]();
-                document.getElementById('app-window').classList.add('open');
-                if(id === 'sanctum') setTimeout(() => document.getElementById('temple-gates').classList.add('sanctum-open'), 100);
-            },
-            close() { document.getElementById('app-window').classList.remove('open'); },
-            addXP(n) { this.xp += n; localStorage.setItem('shiva_xp', this.xp); document.getElementById('karma-pts').innerText = this.xp; }
+        // --- GAME ENGINE STATE ---
+        const State = {
+            score: 0,
+            isPouring: false,
+            audioEnabled: false
         };
 
-        const Apps = {
-            
-            // 1. PANCHANG (Orange/Gold)
-            panchang: () => {
-                let g = '';
-                for(let i=1; i<=30; i++) g += `<div class="cal-day ${i===14?'today':''}" onclick="alert('Day ${i}: Good for Sadhana'); OS.addXP(1)">${i}</div>`;
-                return `
-                    <div class="card panchang-card">
-                        <div class="card-h" style="border-color:#ff9800;">December 2025</div>
-                        <div class="cal-grid">${g}</div>
-                    </div>
-                    <div class="card">
-                        <h3>Set Alarm</h3>
-                        <button class="btn-gold" style="background:var(--orange);" onclick="alert('Alarm Set'); OS.addXP(5)">⏰ Set for Brahma Muhurta</button>
-                    </div>`;
+        // --- AUDIO SYNTHESIZER ---
+        const AudioSys = {
+            ctx: null,
+            init() {
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
             },
+            playBell() {
+                if (!State.audioEnabled) return;
+                this.init();
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sine';
+                // Bell harmonics
+                [500, 1000, 1500].forEach(f => {
+                    const o = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    o.frequency.value = f;
+                    g.gain.setValueAtTime(0.1, t);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 3);
+                    o.connect(g); g.connect(this.ctx.destination);
+                    o.start(t); o.stop(t + 3);
+                });
+            },
+            playWater() {
+                if (!State.audioEnabled) return;
+                this.init();
+                const bufferSize = this.ctx.sampleRate * 2;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
 
-            // 6. SANCTUM (Animation)
-            sanctum: () => `
-                <div style="position:relative; height:400px; overflow:hidden; border-radius:16px; margin-bottom:20px;" id="temple-gates">
-                    <div class="temple-door door-left"><div style="font-size:3rem;">🚪</div></div>
-                    <div class="temple-door door-right"><div style="font-size:3rem;">🚪</div></div>
-                    <div style="height:100%; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                        <div class="shivling-3d"></div>
-                        <div style="margin-top:20px; display:flex; gap:20px;">
-                            <button class="btn-glass" onclick="new Audio('https://freesound.org/data/previews/398/398030_7636830-lq.mp3').play(); OS.addXP(2)">🔔 Bell</button>
-                            <button class="btn-glass" onclick="OS.addXP(10); alert('Abhishekam Offered')">💧 Jal</button>
-                        </div>
-                    </div>
-                </div>
-            `,
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass'; filter.frequency.value = 800;
+                
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 2);
 
-            // 12. YATRA (Golden Map)
-            yatra: () => `
-                <div class="card">
-                    <div class="map-box">
-                        <div style="position:absolute; top:30%; left:30%;" class="jyoti-dot" onclick="alert('Somnath')"></div>
-                        <div style="position:absolute; top:40%; left:45%;" class="jyoti-dot" onclick="alert('Mahakaleshwar')"></div>
-                        <div style="position:absolute; top:45%; left:60%;" class="jyoti-dot" onclick="alert('Kashi')"></div>
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/India_location_map.svg/640px-India_location_map.svg.png" style="width:100%; height:100%; opacity:0.3; object-fit:contain;">
-                    </div>
-                    <p style="text-align:center; margin-top:10px;">Tap Golden Jyotirlingas</p>
-                </div>
-            `,
-
-            // 14. RUDRAKSHA (Physics)
-            rudra: () => `
-                <div class="card">
-                    <div class="mala-container"><div class="bead-string" id="mala-str">${Array(10).fill('<div class="bead"></div>').join('')}</div></div>
-                    <button class="btn-gold" onclick="document.getElementById('mala-str').style.transform='translateX(-55px)'; setTimeout(()=>{document.getElementById('mala-str').style.transition='none'; document.getElementById('mala-str').appendChild(document.getElementById('mala-str').firstElementChild); document.getElementById('mala-str').style.transform='translateX(0)'; setTimeout(()=>document.getElementById('mala-str').style.transition='transform 0.2s',50);},200); OS.addXP(1);">Pull Bead</button>
-                </div>
-            `,
-
-            // 18. ASCENT (Game)
-            ascent: () => `
-                <div class="card">
-                    <div class="mountain-path">
-                        <div class="asc-stage active" style="bottom:0;" onclick="OS.addXP(10)"><div class="asc-node" style="background:gold;"></div> <span style="margin-left:30px;">1. Yama</span></div>
-                        <div class="asc-stage" style="bottom:15%;" onclick="this.classList.add('active'); OS.addXP(20)"><div class="asc-node"></div> <span style="margin-left:30px;">2. Niyama</span></div>
-                        <div class="asc-stage" style="bottom:30%;" onclick="this.classList.add('active'); OS.addXP(30)"><div class="asc-node"></div> <span style="margin-left:30px;">3. Asana</span></div>
-                        <div class="asc-stage" style="bottom:45%;" onclick="this.classList.add('active'); OS.addXP(40)"><div class="asc-node"></div> <span style="margin-left:30px;">4. Pranayama</span></div>
-                        <div class="asc-stage" style="bottom:60%;" onclick="this.classList.add('active'); OS.addXP(50)"><div class="asc-node"></div> <span style="margin-left:30px;">5. Pratyahara</span></div>
-                        <div class="asc-stage" style="bottom:75%;" onclick="this.classList.add('active'); OS.addXP(60)"><div class="asc-node"></div> <span style="margin-left:30px;">6. Dharana</span></div>
-                        <div class="asc-stage" style="bottom:90%; color:var(--gold);" onclick="this.classList.add('active'); OS.addXP(100); alert('Samadhi!')"><div class="asc-node" style="border-color:gold;"></div> <span style="margin-left:30px;">7. SAMADHI</span></div>
-                    </div>
-                </div>
-            `,
-
-            // 4. CHAKRA (Body UI)
-            chakra: () => `
-                <div class="card">
-                    <div class="body-outline">
-                        <div class="chakra-node" style="color:violet;" onclick="alert('Crown Activated')"></div>
-                        <div class="chakra-node" style="color:indigo;" onclick="alert('Third Eye Activated')"></div>
-                        <div class="chakra-node" style="color:blue;" onclick="alert('Throat Activated')"></div>
-                        <div class="chakra-node" style="color:green;" onclick="alert('Heart Activated')"></div>
-                        <div class="chakra-node" style="color:yellow;" onclick="alert('Solar Activated')"></div>
-                        <div class="chakra-node" style="color:orange;" onclick="alert('Sacral Activated')"></div>
-                        <div class="chakra-node" style="color:red;" onclick="alert('Root Activated')"></div>
-                    </div>
-                    <p style="text-align:center; margin-top:15px;">Tap chakras to meditate</p>
-                </div>
-            `,
-
-            // 10. AHARA (Prompt)
-            ahara: () => `
-                <div class="card">
-                    <input class="input-field" placeholder="How do you feel? (e.g. Lethargic)">
-                    <button class="btn-gold" onclick="alert('Suggestion: Eat light fruits and avoid grains today.')">Get Advice</button>
-                </div>
-                <div class="card">
-                    <h3>7 Day Plan</h3>
-                    <div class="btn-glass" onclick="window.open('https://youtube.com/results?search_query=satvik+recipes')">Watch Recipes</div>
-                </div>
-            `,
-
-            // 3. SANKALPA (Diary)
-            sankalpa: () => `
-                <div class="card">
-                    <h3>Vow Diary</h3>
-                    <input class="input-field" id="vow-txt" placeholder="I vow to...">
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <button class="btn-glass" onclick="document.getElementById('vow-txt').value='Calm'">Calm</button>
-                        <button class="btn-glass" onclick="document.getElementById('vow-txt').value='Focus'">Focus</button>
-                    </div>
-                    <button class="btn-gold" onclick="document.getElementById('vow-list').innerHTML+='<li>'+document.getElementById('vow-txt').value+'</li>'; OS.addXP(5)">Commit</button>
-                    <ul id="vow-list" style="margin-top:20px;"></ul>
-                </div>
-            `,
-
-            // 5. DAAN (Links)
-            daan: () => `<div class="card"><h3>Spiritual Giving</h3><p>Verified organizations:</p><button class="btn-gold" onclick="window.open('https://iskcon.org/donate')">ISKCON Food Relief</button><button class="btn-gold" style="margin-top:10px;" onclick="window.open('https://sadhguru.org/donate')">Isha Foundation</button></div>`,
-
-            // 9. DREAMS (Wishlist)
-            dreams: () => `<div class="card"><h3>Shiva Places Wishlist</h3><div style="margin-bottom:10px;"><input type="checkbox"> Kedarnath</div><div style="margin-bottom:10px;"><input type="checkbox"> Kashi</div><input class="input-field" placeholder="Add place..."><button class="btn-gold">Save</button></div>`,
-
-            // 2. MEDIA
-            media: () => `<div class="jyoti-grid">${['Meditation','Chants','Aarti','Mantra'].map(t=>`<div class="jyoti-card" onclick="window.open('https://youtube.com/results?search_query=shiva+${t}')">🎵<br>${t}</div>`).join('')}</div>`,
-
-            // 11. GYAN
-            gyan: () => `<div class="card" style="background:rgba(255,255,255,0.1); backdrop-filter:blur(20px);"><h3>Shiva Wisdom</h3><p>"You are not the body, you are not even the mind."</p></div>`,
-
-            // 15. SADHANA
-            sadhana: () => `<div class="card"><button class="btn-gold" onclick="this.style.background='red'; this.innerText='Recording...'">🎙️ Record Mantra</button></div><div class="card"><button class="btn-glass" onclick="window.open('https://youtube.com/results?search_query=shiva+sadhana+guide')">Watch Tutorial</button></div>`,
-
-            // 7. PARIVAR
-            parivar: () => `<div class="card"><div style="text-align:center;"><div style="font-size:3rem;">🔱</div><h3>Shiva</h3><button class="btn-glass" onclick="alert('Om Namah Shivaya')">Mantra</button></div></div>`,
-
-            // 16. YANTRA
-            yantra: () => `<div class="card" style="text-align:center;"><div style="width:150px; height:150px; border-radius:50%; background:conic-gradient(red,blue,green,red); margin:0 auto; animation:spin 2s linear infinite;"></div><p>Focus Center</p></div>`,
-
-            // 17. MANTRA
-            mantra: () => `<div class="card"><input class="input-field" placeholder="I feel..."><button class="btn-gold" onclick="alert('Chant: Om Namah Shivaya')">Get Mantra</button></div>`,
-
-            // 8. UTSAV
-            festivals: () => `<div class="card" style="text-align:center; border:2px solid gold;"><h1>26</h1><p>Days to Shivratri</p></div>`,
-
-            // 19. SETTINGS
-            settings: () => `<div class="card"><button class="btn-glass" onclick="alert('Language changed to Hindi')">Switch to Hindi / English</button><button class="btn-gold" style="margin-top:20px; background:#333;" onclick="localStorage.clear(); location.reload()">Reset App</button></div>`,
-
-            // 10. PRASAD (Stats)
-            prasad: () => `<div class="card" style="text-align:center;"><h1>${OS.xp}</h1><p>Karma Points</p></div>`
+                noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+                noise.start();
+            }
         };
+
+        // --- 3D SCENE SETUP ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050505);
+        scene.fog = new THREE.FogExp2(0x050505, 0.05);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 3, 6);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.getElementById('world').appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.maxPolarAngle = Math.PI / 2; // Don't go below ground
+        controls.minDistance = 3;
+        controls.maxDistance = 10;
+
+        // --- LIGHTING ---
+        const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white light
+        scene.add(ambientLight);
+
+        const flameLight = new THREE.PointLight(0xffaa00, 5, 10);
+        flameLight.position.set(0, 1, 2);
+        flameLight.castShadow = true;
+        scene.add(flameLight);
+
+        const topLight = new THREE.SpotLight(0xffffff, 5);
+        topLight.position.set(0, 8, 0);
+        topLight.angle = Math.PI / 6;
+        topLight.penumbra = 0.5;
+        topLight.castShadow = true;
+        scene.add(topLight);
+
+        // --- OBJECTS (PROCEDURAL GENERATION) ---
+        
+        // 1. Floor
+        const floorGeo = new THREE.PlaneGeometry(20, 20);
+        const floorMat = new THREE.MeshStandardMaterial({ 
+            color: 0x111111, roughness: 0.5, metalness: 0.5 
+        });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // 2. Shivling Base (Yoni)
+        const yoniGeo = new THREE.CylinderGeometry(1.5, 1.5, 0.4, 32);
+        const blackStone = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.2, metalness: 0.8 });
+        const yoni = new THREE.Mesh(yoniGeo, blackStone);
+        yoni.position.y = 0.2;
+        yoni.castShadow = true; yoni.receiveShadow = true;
+        scene.add(yoni);
+
+        // Spout
+        const spoutGeo = new THREE.BoxGeometry(0.8, 0.3, 1.5);
+        const spout = new THREE.Mesh(spoutGeo, blackStone);
+        spout.position.set(0, 0.2, 1.2);
+        scene.add(spout);
+
+        // 3. Lingam
+        const lingamGeo = new THREE.CapsuleGeometry(0.6, 1.2, 4, 16);
+        const lingam = new THREE.Mesh(lingamGeo, blackStone);
+        lingam.position.y = 1;
+        lingam.castShadow = true;
+        scene.add(lingam);
+
+        // Tripundra (Three Lines)
+        const tripundraGroup = new THREE.Group();
+        const lineGeo = new THREE.BoxGeometry(0.6, 0.05, 0.05); // Curved manually via position
+        const ashMat = new THREE.MeshBasicMaterial({ color: 0xcccccc });
+        
+        for(let i=0; i<3; i++) {
+            const line = new THREE.Mesh(lineGeo, ashMat);
+            line.position.set(0, 1.2 + (i*0.1), 0.55);
+            // Simple curve simulation
+            tripundraGroup.add(line);
+        }
+        const dotGeo = new THREE.SphereGeometry(0.06);
+        const redMat = new THREE.MeshBasicMaterial({color: 0xff0000});
+        const dot = new THREE.Mesh(dotGeo, redMat);
+        dot.position.set(0, 1.3, 0.58);
+        tripundraGroup.add(dot);
+        scene.add(tripundraGroup);
+
+
+        // 4. Kalash (Pot) - INTERACTIVE
+        const potGeo = new THREE.SphereGeometry(0.5, 32, 16);
+        const copperMat = new THREE.MeshStandardMaterial({ color: 0xb87333, metalness: 0.6, roughness: 0.3 });
+        const pot = new THREE.Mesh(potGeo, copperMat);
+        pot.position.set(0, 3.5, 0);
+        pot.castShadow = true;
+        pot.userData = { type: 'pot' }; // Tag for raycaster
+        scene.add(pot);
+
+        // Rope
+        const ropeGeo = new THREE.CylinderGeometry(0.02, 0.02, 2);
+        const rope = new THREE.Mesh(ropeGeo, new THREE.MeshBasicMaterial({color:0x888888}));
+        rope.position.set(0, 4.5, 0);
+        scene.add(rope);
+
+        // 5. Bell - INTERACTIVE
+        const bellGeo = new THREE.ConeGeometry(0.4, 0.6, 32, 1, true);
+        const goldMat = new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 0.9, roughness: 0.2 });
+        const bell = new THREE.Mesh(bellGeo, goldMat);
+        bell.position.set(-2, 3, 0);
+        bell.userData = { type: 'bell' };
+        scene.add(bell);
+        
+        const bellRope = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 2), new THREE.MeshBasicMaterial({color:0x888888}));
+        bellRope.position.set(-2, 4.3, 0);
+        scene.add(bellRope);
+
+
+        // --- PARTICLE SYSTEMS ---
+        
+        // Water System
+        const waterCount = 200;
+        const waterGeo = new THREE.BufferGeometry();
+        const waterPos = new Float32Array(waterCount * 3);
+        waterGeo.setAttribute('position', new THREE.BufferAttribute(waterPos, 3));
+        const waterMat = new THREE.PointsMaterial({ color: 0x00aaff, size: 0.05, transparent: true, opacity: 0.6 });
+        const waterSys = new THREE.Points(waterGeo, waterMat);
+        scene.add(waterSys);
+        
+        // Init Water Positions (Hidden)
+        for(let i=0; i<waterCount*3; i+=3) waterPos[i+1] = 100; // Hide way up
+
+        // --- INTERACTION LOGIC (Raycaster) ---
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+
+        function onPointerClick( event ) {
+            pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+            raycaster.setFromCamera( pointer, camera );
+            const intersects = raycaster.intersectObjects( scene.children );
+
+            if ( intersects.length > 0 ) {
+                const obj = intersects[0].object;
+                
+                if (obj.userData.type === 'pot') {
+                    startAbhishekam();
+                }
+                if (obj.userData.type === 'bell') {
+                    ringBell(obj);
+                }
+            }
+        }
+
+        function startAbhishekam() {
+            if(State.isPouring) return;
+            State.isPouring = true;
+            AudioSys.playWater();
+            
+            // Tilt Pot Animation
+            let tilt = 0;
+            const tiltInterval = setInterval(() => {
+                tilt += 0.05;
+                pot.rotation.z = Math.sin(tilt) * 0.5;
+                if(tilt > 3) {
+                    clearInterval(tiltInterval);
+                    pot.rotation.z = 0;
+                    State.isPouring = false;
+                }
+            }, 16);
+
+            // Activate Particles
+            let pIdx = 0;
+            const flowInterval = setInterval(() => {
+                if(!State.isPouring) { clearInterval(flowInterval); return; }
+                // Reset a batch of particles to the pot mouth
+                for(let k=0; k<10; k++) {
+                    const i = (pIdx + k) % waterCount;
+                    waterPos[i*3] = (Math.random() - 0.5) * 0.1; // x
+                    waterPos[i*3 + 1] = 3.2; // y (pot height)
+                    waterPos[i*3 + 2] = (Math.random() - 0.5) * 0.1; // z
+                }
+                pIdx += 10;
+                State.score += 1;
+                document.getElementById('score').innerText = State.score;
+            }, 50);
+        }
+
+        function ringBell(bellMesh) {
+            AudioSys.playBell();
+            let swing = 0;
+            const swingInterval = setInterval(() => {
+                swing += 0.2;
+                bellMesh.rotation.x = Math.sin(swing) * 0.5;
+                if(swing > 6) {
+                    clearInterval(swingInterval);
+                    bellMesh.rotation.x = 0;
+                }
+            }, 16);
+        }
+
+        window.addEventListener( 'click', onPointerClick );
+
+        // --- ANIMATION LOOP ---
+        function animate() {
+            requestAnimationFrame( animate );
+            controls.update();
+
+            // Animate Flame Light (Flicker)
+            flameLight.intensity = 2 + Math.random() * 2;
+
+            // Animate Water Particles
+            const positions = waterSys.geometry.attributes.position.array;
+            for(let i=1; i<positions.length; i+=3) {
+                if(positions[i] < 100) { // If active
+                    positions[i] -= 0.1; // Fall down
+                    if(positions[i] < 1) positions[i] = 100; // Reset if hits lingam
+                }
+            }
+            waterSys.geometry.attributes.position.needsUpdate = true;
+
+            renderer.render( scene, camera );
+        }
+
+        // --- GAME CONTROLLER ---
+        window.Game = {
+            resetView: () => {
+                camera.position.set(0, 3, 6);
+                controls.target.set(0, 1, 0);
+            },
+            toggleAudio: () => {
+                State.audioEnabled = !State.audioEnabled;
+                AudioSys.init(); // Unlock context
+                alert(State.audioEnabled ? "Audio ON" : "Audio OFF");
+            }
+        };
+
+        // Remove Loader
+        setTimeout(() => document.getElementById('loader').style.opacity = 0, 1500);
+        setTimeout(() => document.getElementById('loader').style.display = 'none', 2500);
+
+        animate();
+
     </script>
 </body>
 </html>
